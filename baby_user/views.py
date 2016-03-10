@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
 from django.http import HttpResponse
-from baby_user import user, user_normal, user_daycarecenter, user_bonne
+from baby_user.models import user, user_normal, user_daycarecenter, user_bonne
 
 def login():
     return HttpResponse("login")
