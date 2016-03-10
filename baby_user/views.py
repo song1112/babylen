@@ -26,6 +26,5 @@ def register():
             response_data['result'] = 0
             response_data['message'] = 'Error:' + ex.message
 
-    return HttpResponse("register")
-
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
 
