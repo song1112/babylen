@@ -1,3 +1,3 @@
 from babylen.settings import *
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ['52.192.177.242']
