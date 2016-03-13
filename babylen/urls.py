@@ -16,9 +16,10 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
-from baby_user.views import register
+from baby_user.views import register, login
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api/v1/register', register),
+    url(r'^api/v1/login', login),
 ]
 

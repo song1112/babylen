@@ -1,3 +1,7 @@
 from django.shortcuts import render
 
-# Create your views here.
+class cu_notification_id(request):
+    return HttpResponse('404 Not Found')
+    
+class get_notification_datalist(request):
+    return HttpResponse('404 Not Found')
