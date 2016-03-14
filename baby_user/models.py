@@ -9,9 +9,9 @@ class user(models.Model):
     updatedat = models.DateTimeField(auto_now=True)
     account = models.CharField(blank=False, max_length=20, unique=True)
     password = models.CharField(blank=False, max_length=20)
-    auth_parents = models.CharField(blank=False, max_length=1)
-    auth_bonne = models.CharField(blank=False, max_length=1)
-    auth_daycarecenter = models.CharField(blank=False, max_length=1)
+    auth_parents = models.IntegerField()
+    auth_bonne = models.IntegerField()
+    auth_daycarecenter = models.IntegerField()
 
 class user_normal(models.Model):
     id = models.AutoField(primary_key=True)

@@ -9,13 +9,13 @@ class center_picture(models.Model):
     createdat = models.DateTimeField(auto_now_add=True)
     updatedat = models.DateTimeField(auto_now=True)
     img = models.URLField(blank=True, null=True)
-    user_id = models.ForeignKey(user)
+    user_id = models.IntegerField() # models.ForeignKey(user)
 
 
 class center_visit(models.Model):
     id = models.AutoField(primary_key=True)
     createdat = models.DateTimeField(auto_now_add=True)
     updatedat = models.DateTimeField(auto_now=True)
-    user_id = models.ForeignKey(user)
-    user_id_daycarecenter = models.ForeignKey(user_daycarecenter)
+    user_id = models.IntegerField() # models.ForeignKey(user)
+    user_id_daycarecenter = models.IntegerField() # models.ForeignKey(user_daycarecenter)
 

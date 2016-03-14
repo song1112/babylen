@@ -9,7 +9,7 @@ class notification_apns(models.Model):
     updatedat = models.DateTimeField(auto_now=True)
     useragent = models.CharField(blank=False, max_length=100)   # 推播裝置用戶代理
     deviceid = models.CharField(blank=False, max_length=200)    # 推播裝置ID
-    user_id = models.ForeignKey(user)
+    user_id = models.IntegerField() # models.ForeignKey(user)
 
 class notification_gcm(models.Model):
     id = models.AutoField(primary_key=True)
@@ -17,4 +17,4 @@ class notification_gcm(models.Model):
     updatedat = models.DateTimeField(auto_now=True)
     useragent = models.CharField(blank=False, max_length=100)   # 推播裝置用戶代理
     deviceid = models.CharField(blank=False, max_length=200)    # 推播裝置ID
-    user_id = models.ForeignKey(user)
+    user_id = models.IntegerField() # models.ForeignKey(user)

@@ -17,7 +17,7 @@ class produce(models.Model):
     name = models.CharField(blank=False, max_length=20)
     price = models.IntegerField()
     img = models.URLField(blank=True, null=True)
-    produce_type_id = models.ForeignKey(produce_type)
+    produce_type_id = models.IntegerField() # models.ForeignKey(produce_type)
 
 class produce_trade(models.Model):
     id = models.AutoField(primary_key=True)
@@ -26,5 +26,5 @@ class produce_trade(models.Model):
     money = models.IntegerField()
     trade_data = models.TextField(blank=True, null=True)
     allpay_data = models.TextField(blank=True, null=True)
-    user_id = models.ForeignKey(user)
+    user_id = models.IntegerField() # models.ForeignKey(user)
 
