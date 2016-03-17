@@ -1,7 +1,27 @@
 # -*- coding:utf-8 -*-
 from __future__ import unicode_literals
-
 from django.db import models
+
+import os
+from uuid import uuid4
+from django.utils.deconstruct import deconstructible
+from django.conf import settings
+
+@deconstructible
+class PathAndRename(object):
+    def __init__(self, path):
+        self.sub_path = path
+    def __call__(self, instance, filename):
+        ext = filename.split('.')[-1]
+        # get filename
+        if instance.pk:
+            filename = '{}.{}'.format(instance.pk, ext)
+        else:
+            # set filename as random string
+            filename = '{}.{}'.format(uuid4().hex, ext)
+        # return the whole path to the file
+        return os.path.join(self.sub_path, filename)
+
 
 class user(models.Model):
     id = models.AutoField(primary_key=True)
@@ -13,6 +33,9 @@ class user(models.Model):
     auth_bonne = models.IntegerField()
     auth_daycarecenter = models.IntegerField()
 
+    def __unicode__(self):
+        return self.account
+
 class user_normal(models.Model):
     id = models.AutoField(primary_key=True)
     createdat = models.DateTimeField(auto_now_add=True)
@@ -22,7 +45,7 @@ class user_normal(models.Model):
     birthday = models.DateField(blank=True, null=True)
     sex = models.CharField(blank=True, null=True, max_length=1)    
     tips = models.TextField(blank=True, null=True)
-    img = models.URLField(blank=True, null=True)
+    img = models.ImageField(upload_to=PathAndRename('image/user_normal/'), blank=True, null=True)
     phone = models.CharField(blank=True, null=True, max_length=20)
     address = models.TextField(blank=True, null=True)
     user_id = models.IntegerField(unique=True) # models.ForeignKey(user) 
@@ -47,4 +70,6 @@ class user_bonne(models.Model):
     experience = models.TextField(blank=True, null=True)                # 保姆專長
     baby_count_record = models.IntegerField(blank=True, null=True)      # 保姆曾照育寶寶數
     user_id = models.IntegerField(unique=True) # models.ForeignKey(user)
-    user_id_daycarecenter = models.IntegerField() # models.ForeignKey(user_daycarecenter)
+    user_id_daycarecenter = models.IntegerField(blank=True, null=True) # models.ForeignKey(user_daycarecenter)
+
+

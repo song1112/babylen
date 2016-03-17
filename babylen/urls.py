@@ -16,11 +16,11 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
-from baby_user.views import register, login, get_user_datalist, u_user_datalist, get_baby_datalist
+from baby_user.views import register, login, get_user_datalist, u_user_datalist, get_baby_datalist, updata_user_pic
 from baby_user.views import u_barcode_relevance_m2c, u_barcode_relevance_b2c, u_barcode_relevance_b2m, u_barcode_relevance_b2p
 from babylen.views import get_main_datalist
-from baby.views import cu_baby, u_baby_relevance_remove, u_baby_relevance_b2m
-from baby.views import cu_baby_record, get_baby_picture_imglist
+from baby.views import cu_baby, u_baby_relevance_remove, u_baby_relevance_b2m, c_baby_picture
+from baby.views import cu_baby_record, get_baby_picture_imglist, get_baby_record_simple, get_baby_record_detail
 from center.views import get_center_record_simple, get_center_record_detail, c_barcode_cneter_visit, u_center_record_detail
 from notification.views import cu_notification_id, get_notification_datalist
 from discuss.views import get_discuss_group_datalist, get_discuss_article_datalist, c_discuss_group, c_discuss_article
@@ -37,6 +37,7 @@ urlpatterns = [
     url(r'^api/v1/u_barcode_relevance_b2c', u_barcode_relevance_b2c),
     url(r'^api/v1/u_barcode_relevance_b2m', u_barcode_relevance_b2m),
     url(r'^api/v1/u_barcode_relevance_b2p', u_barcode_relevance_b2p),
+    url(r'^api/v1/updata_user_pic', updata_user_pic),
     # babylen.views
     url(r'^api/v1/get_main_datalist', get_main_datalist),
     # baby.views
@@ -45,6 +46,9 @@ urlpatterns = [
     url(r'^api/v1/u_baby_relevance_b2m', u_baby_relevance_b2m),
     url(r'^api/v1/cu_baby_record', cu_baby_record),
     url(r'^api/v1/get_baby_picture_imglist', get_baby_picture_imglist),
+    url(r'^api/v1/c_baby_picture', c_baby_picture),
+    url(r'^api/v1/get_baby_record_simple', get_baby_record_simple),
+    url(r'^api/v1/get_baby_record_detail', get_baby_record_detail),
     # center.views
     url(r'^api/v1/get_center_record_simple', get_center_record_simple),
     url(r'^api/v1/get_center_record_detail', get_center_record_detail),
@@ -60,3 +64,6 @@ urlpatterns = [
     url(r'^api/v1/c_discuss_article', c_discuss_article),
 ]
 
+from django.conf import settings
+from django.conf.urls.static import static
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  

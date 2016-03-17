@@ -31,12 +31,13 @@ def get_main_datalist(request):
                     baby_data['bid'] = baby_item.id
                     baby_data['name'] = baby_item.name
                     baby_data['birthday'] = baby_item.birthday
-                    baby_data['bonne'] = baby_item.bonne
-                    baby_data['img'] = baby_item.img
+                    baby_data['img'] = baby_item.img.url
                     baby_data['sex'] = baby_item.sex
                     baby_data['height'] = baby_item.height
                     baby_data['weight'] = baby_item.weight
                     baby_data['nickname'] = baby_item.nickname
+                    baby_data['bonne'] = baby_item.user_id_bonne
+                    baby_data['tips'] = baby_item.tips
                     baby_coll.append(baby_data)
                 response_data['datalist'] = baby_coll
                 response_data['action'] = 1

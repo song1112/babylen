@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from baby_user.models import user
+from baby_user.models import user, PathAndRename
 class notification_apns(models.Model):
     id = models.AutoField(primary_key=True)
     createdat = models.DateTimeField(auto_now_add=True)

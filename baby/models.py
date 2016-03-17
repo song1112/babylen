@@ -2,7 +2,8 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from baby_user.models import user 
+from baby_user.models import user, PathAndRename 
+from babylen  import settings
 
 class baby(models.Model):
     id = models.AutoField(primary_key=True)
@@ -12,7 +13,7 @@ class baby(models.Model):
     birthday = models.DateField(blank=True, null=True)
     sex = models.CharField(blank=True, null=True, max_length=1) 
     tips = models.TextField(blank=True, null=True)
-    img = models.URLField(blank=True, null=True)
+    img = models.ImageField(upload_to=PathAndRename('image/baby/'), blank=True, null=True)
     height = models.CharField(blank=True, null=True, max_length=10)
     weight = models.CharField(blank=True, null=True, max_length=10)
     nickname = models.CharField(blank=False, max_length=20)
@@ -21,6 +22,10 @@ class baby(models.Model):
     user_id_mother = models.IntegerField(blank=True, null=True)
     user_id_bonne = models.IntegerField(blank=True, null=True)
     user_id_daycarecenter = models.IntegerField(blank=True, null=True)
+
+    def __unicode__(self):
+        return self.name
+
 
 # 寶寶掃條碼紀錄
 class baby_barcode(models.Model):
@@ -85,7 +90,7 @@ class baby_picture(models.Model):
     id = models.AutoField(primary_key=True)
     createdat = models.DateTimeField(auto_now_add=True)
     updatedat = models.DateTimeField(auto_now=True)
-    img = models.URLField(blank=True, null=True)
+    img = models.ImageField(upload_to=PathAndRename('image/baby_picture/'), blank=True, null=True)
     baby_id = models.IntegerField() # models.ForeignKey(baby)
 
 # 寶寶親戚(寶寶聊天室可看但不能發言者)

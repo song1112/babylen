@@ -21,8 +21,8 @@ def login(request):
     try:
         query_u = user.objects.get(account=data['account'])
         if (data['Identify']==0 and query_u.auth_parents==1) or \
-           (data['Identify']==0 and query_u.auth_bonne==1) or \
-           (data['Identify']==0 and query_u.auth_daycarecenter==1):
+           (data['Identify']==1 and query_u.auth_bonne==1) or \
+           (data['Identify']==2 and query_u.auth_daycarecenter==1):
            response_data['action'] = 1
            response_data['uid'] = query_u.id
            response_data['Identify_parents'] = query_u.auth_parents
@@ -51,7 +51,13 @@ def register(request):
             reg_user = user.objects.create(account=data['account'], password=data['password'], \
                 auth_parents=data['Identify_parents'], auth_bonne=data['Identify_bonne'], \
                 auth_daycarecenter=data['Identify_daycarecenter'])
-            user_info = user_normal.objects.create(email=data['email'], user_id=reg_user.id)
+            user_normal.objects.create(email=data['email'], user_id=reg_user.id)
+            # 如果有保母權限則建立保母資料
+            if data['Identify_bonne']==1:
+                user_bonne.objects.create(user_id=reg_user.id)
+            # 如果有中心權限則建立保母資料
+            if data['Identify_daycarecenter']==1:
+                user_daycarecenter.objects.create(user_id=reg_user.id)
             response_data['action'] = 1
         except Exception, ex:
             response_data['action'] = -1
@@ -70,6 +76,7 @@ RETURN:{"action","normal":{"email","name","birthday","sex","tips","img","phone":
 def get_user_datalist(request):
     response_data = {}
     data = {}
+    response_data['action'] = 0
     if request.method == 'POST':
         data = json.loads(request.body)
         try:
@@ -81,7 +88,7 @@ def get_user_datalist(request):
             resp_normal['birthday'] = u_data.birthday
             resp_normal['sex'] = u_data.sex
             resp_normal['tips'] = u_data.tips
-            resp_normal['img'] = u_data.img
+            resp_normal['img'] = u_data.img.url
             resp_normal['phone'] = u_data.phone
             resp_normal['address'] = u_data.address
             response_data['normal'] = resp_normal
@@ -106,8 +113,7 @@ def get_user_datalist(request):
         except Exception, ex:
             response_data['action'] = -1
             response_data['message'] = 'Error:' + ex.message
-        return JsonResponse(response_data)
-    return HttpResponse('404 Not Found')
+    return JsonResponse(response_data)
 
 
 
@@ -258,7 +264,7 @@ def get_baby_datalist(request):
                     bonne_item['mid'] = bonne_data.id
                     u_data = user_normal.objects.get(id=bonne_data.user_id)
                     bonne_item['name'] = u_data.name
-                    bonne_item['img'] = u_data.img
+                    bonne_item['img'] = u_data.img.url
                     # 找到保母旗下的所有寶寶
                     babys_data = baby.objects.filter(user_id_bonne=bonne_data.id)
                     babys_list = []  # 儲存保母旗下所有寶寶
@@ -279,3 +285,29 @@ def get_baby_datalist(request):
             response_data['action'] = -1
             response_data['message'] = 'Error:' + ex.message
     return JsonResponse(response_data)
+
+from PIL import ImageFile
+from django.core.files import File
+from django.core.files.base import ContentFile
+"""
+POST VALUE: file, uid
+"""
+@csrf_exempt
+def updata_user_pic(request):
+    response_data = {}
+    response_data['action'] = 0
+    if request.method == 'POST':
+        try:
+            uid = request.POST['uid']
+            file_content = ContentFile(request.FILES['uploaded_file'].read())
+            u_data = user_normal.objects.get(user_id=uid)
+            u_data.img.save(uid+request.FILES['uploaded_file'].name, file_content)
+            response_data['action'] = 1
+            response_data['message'] = 'updata_user_pic success'
+        except Exception, ex:
+            response_data['action'] = -1
+            response_data['message'] = ex.message
+    return JsonResponse(response_data)
+
+
+

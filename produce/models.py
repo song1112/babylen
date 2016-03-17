@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from baby_user.models import user 
+from baby_user.models import user, PathAndRename
 
 class produce_type(models.Model):
     id = models.AutoField(primary_key=True)
@@ -16,7 +16,7 @@ class produce(models.Model):
     updatedat = models.DateTimeField(auto_now=True)
     name = models.CharField(blank=False, max_length=20)
     price = models.IntegerField()
-    img = models.URLField(blank=True, null=True)
+    img = models.ImageField(upload_to=PathAndRename('image/produce/'), blank=True, null=True)
     produce_type_id = models.IntegerField() # models.ForeignKey(produce_type)
 
 class produce_trade(models.Model):
