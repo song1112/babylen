@@ -48,13 +48,18 @@ def get_discuss_article_datalist(request):
             d_topic = discuss.objects.get(id=data['fid'])
             d_data = discuss_message.objects.filter(discuss_id=data['fid'])
             response_data['title'] = d_topic.title
+            response_data['name'] = "test"
+            response_data['imglist'] = ""
+            response_data['content'] = d_topic.content
+            response_data['time'] = d_topic.createdat
             d_list = []
             for d in d_data:
                 d_item = {}
                 d_item['content'] = d.content
-                u_name = user_normal.objects.get(user_id=data['uid'])
-                d_item['name'] = u_name.name
+                # u_name = user_normal.objects.get(user_id=data['uid'])
                 d_item['time'] = d.updatedat
+                d_item['name'] = "test"
+                d_item['imglist'] = ""
                 d_list.append(d_item)
             response_data['datalist'] = d_list
         except Exception, ex:

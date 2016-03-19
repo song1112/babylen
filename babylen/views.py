@@ -31,7 +31,10 @@ def get_main_datalist(request):
                     baby_data['bid'] = baby_item.id
                     baby_data['name'] = baby_item.name
                     baby_data['birthday'] = baby_item.birthday
-                    baby_data['img'] = baby_item.img.url
+                    try:
+                        baby_data['img'] = baby_item.img.url
+                    except Exception, ex:
+                        baby_data['img'] = ""
                     baby_data['sex'] = baby_item.sex
                     baby_data['height'] = baby_item.height
                     baby_data['weight'] = baby_item.weight

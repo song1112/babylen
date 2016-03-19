@@ -15,7 +15,7 @@ class discuss(models.Model):
     updatedat = models.DateTimeField(auto_now=True)
     title = models.CharField(blank=False, max_length=30)
     content = models.TextField()
-    discuss_type_id = models.IntegerField() # models.ForeignKey(discuss_type)
+    discuss_type_id = models.IntegerField(blank=True, null=True) # models.ForeignKey(discuss_type)
     user_id = models.IntegerField() # models.ForeignKey(user)
 
 class discuss_message(models.Model):
@@ -23,5 +23,5 @@ class discuss_message(models.Model):
     createdat = models.DateTimeField(auto_now_add=True)
     updatedat = models.DateTimeField(auto_now=True)
     content = models.TextField()
-    discuss_id = models.IntegerField() # models.ForeignKey(discuss)
+    discuss_id = models.IntegerField(blank=True, null=True) # models.ForeignKey(discuss)
     user_id = models.IntegerField() # models.ForeignKey(user) 

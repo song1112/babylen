@@ -7,6 +7,10 @@ import datetime
 
 from baby.models import *
 
+from PIL import ImageFile
+from django.core.files import File
+from django.core.files.base import ContentFile
+
 """[HTTP POST][Insert][Update] 寶寶資料 
 POST VALUE:{"uid","Identify","name","birthday","sex","tips","img","height","weight","nickname","bid"}
 RETURN:{"action"}
@@ -16,25 +20,37 @@ def cu_baby(request):
     response_data = {}
     data = {}
     response_data['action'] = 0
+    response_data['message'] = 'cu_baby'
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            data['birthday'] = data['birthday'].replace('/','-')
+            if data.get('birthday')!="" and data.get('birthday'):
+                date_object = datetime.datetime.strptime(data['birthday'], '%Y/%m/%d')
             if data.get('bid'):
-                baby.objects.get(id=data['bid']).update(name=data['name'], birthday=data['birthday'], sex=data['sex'], \
-                                 tips=data['tips'], height=data['height'], weight=data['weight'], \
-                                 nickname=data['nickname'])
-
-                response_data['action'] = 2
+                b = baby.objects.get(id=data['bid'])
+                b.name = data['name']
+                b.sex = data['sex']
+                b.tips = data['tips']
+                b.height = data['height']
+                b.weight = data['weight']
+                b.nickname = data['nickname']
+                if data.get('birthday')!="" and data.get('birthday'):
+                    b.birthday=date_object
+                b.save()
+                response_data['action'] = 1
             else:
-                baby.objects.create(birthday=data['birthday'], sex=data['sex'], name=data['name'], \
+                b = baby.objects.create( sex=data['sex'], name=data['name'], \
                                     tips=data['tips'], height=data['height'], weight=data['weight'], \
                                     nickname=data['nickname'], user_id=data['uid'])
+                if data.get('birthday')!="" and data.get('birthday'):
+                    b.birthday=date_object
+                b.save()
+                response_data['bid'] = b.id
                 response_data['action'] = 1
             return JsonResponse(response_data)
         except Exception, ex:
             response_data['action'] = -1
-            response_data['message'] = 'Error:' + ex.message
+            response_data['message'] = 'cu_baby error:' + ex.message
     return JsonResponse(response_data)
 
 """[HTTP POST][Update] 寶寶資料連結取消：從列表中移出該寶寶 
@@ -54,7 +70,7 @@ def u_baby_relevance_remove(request):
             response_data['action'] = 1
         except Exception, ex:
             response_data['action'] = -1
-            response_data['message'] = 'Error:' + ex.message
+            response_data['message'] = 'u_baby_relevance_remove error:' + ex.message
     return JsonResponse(response_data)
 
 """[HTTP POST][Select] 餵奶，副食品，點心、水果，排便，尿布的頁面資料(簡)
@@ -72,48 +88,68 @@ def get_baby_record_simple(request):
         response_data['action'] = 0
         try:
             if data.get('indextime'):
-                query_date = data['indextime'].split('/')
+                response_data['selecttime'] = data.get('indextime')
+                response_data['action'] = 1
+                # query_date = data['indextime'].split('/')
+                query_date = {}
+                query_date[0]=2016
+                query_date[1]=3
+                query_date[2]=18
                 # 取得餵奶
                 BreastFeeding = {}
                 bf = baby_breastfeeding.objects.filter(createdat__year=query_date[0], createdat__month=query_date[1], \
-                                                       createdat__day=query_date[2], baby_id=date['bid']).order_by('-id')
+                                                       createdat__day=query_date[2], baby_id=data['bid']).order_by('-id')
                 BreastFeeding['todaycount'] = bf.count()
-                BreastFeeding['finaltime'] = bf[0].createdat.hour + ":" + bf[0].createdat.minute
+                if bf.count() > 0:
+                    BreastFeeding['finaltime'] = str(bf[0].createdat.hour) + ":" + str(bf[0].createdat.minute)
+                else:
+                    BreastFeeding['finaltime'] = ""
                 response_data['BreastFeeding'] = BreastFeeding
                 # 取得副食品
                 Grocery = {}
                 g = baby_grocery.objects.filter(createdat__year=query_date[0], createdat__month=query_date[1], \
-                                                createdat__day=query_date[2], baby_id=date['bid']).order_by('-id')
+                                                createdat__day=query_date[2], baby_id=data['bid']).order_by('-id')
                 Grocery['todaycount'] = g.count()
-                Grocery['finaltime'] = g[0].createdat.hour + ":" + g[0].createdat.minute
+                if g.count() > 0:
+                    Grocery['finaltime'] = str(g[0].createdat.hour) + ":" + str(g[0].createdat.minute)
+                else:
+                    Grocery['finaltime'] = ""
                 response_data['Grocery'] = Grocery
                 # 取得點心
                 DessertFruit = {}
                 df = baby_dessertfruit.objects.filter(createdat__year=query_date[0], createdat__month=query_date[1], \
-                                                createdat__day=query_date[2], baby_id=date['bid']).order_by('-id')
+                                                createdat__day=query_date[2], baby_id=data['bid']).order_by('-id')
                 DessertFruit['todaycount'] = df.count()
-                DessertFruit['finaltime'] = df[0].createdat.hour + ":" + df[0].createdat.minute
+                if df.count() > 0:
+                    DessertFruit['finaltime'] = str(df[0].createdat.hour) + ":" + str(df[0].createdat.minute)
+                else:
+                    DessertFruit['finaltime'] = ""
                 response_data['DessertFruit'] = DessertFruit
                 # 取得排便
                 Defecation = {}
                 de = baby_defecation.objects.filter(createdat__year=query_date[0], createdat__month=query_date[1], \
-                                                createdat__day=query_date[2], baby_id=date['bid']).order_by('-id')
+                                                createdat__day=query_date[2], baby_id=data['bid']).order_by('-id')
                 Defecation['todaycount'] = de.count()
-                Defecation['finaltime'] = de[0].createdat.hour + ":" + de[0].createdat.minute
-                Defecation['DessertFruit'] = Defecation
+                if de.count() > 0:
+                    Defecation['finaltime'] = str(de[0].createdat.hour) + ":" + str(de[0].createdat.minute)
+                else:
+                    Defecation['finaltime'] = ""
+                response_data['Defecation'] = Defecation
                 # 取得尿布
                 Diaper = {}
                 d = baby_diaper.objects.filter(createdat__year=query_date[0], createdat__month=query_date[1], \
-                                                createdat__day=query_date[2], baby_id=date['bid']).order_by('-id')
+                                                createdat__day=query_date[2], baby_id=data['bid']).order_by('-id')
                 Diaper['todaycount'] = d.count()
-                Diaper['finaltime'] = d[0].createdat.hour + ":" + d[0].createdat.minute
+                if d.count() > 0:
+                    Diaper['finaltime'] = str(d[0].createdat.hour) + ":" + str(d[0].createdat.minute)
+                else:
+                    Diaper['finaltime'] = ""
                 response_data['Diaper'] = Diaper
-                
             else:
                 today = datetime.date.today()
         except Exception, ex:
             response_data['action'] = -1
-            response_data['message'] = 'Error:' + ex.message
+            response_data['message'] = 'get_baby_record_simple error:' + ex.message
     return JsonResponse(response_data)
 
 """[HTTP POST][Select] 餵奶，副食品，點心、水果，排便，尿布的頁面資料(詳)
@@ -130,69 +166,74 @@ def get_baby_record_detail(request):
         response_data['action'] = 0
         try:
             if data.get('indextime'):
-                query_date = data['indextime'].split('/')
+                # query_date = data['indextime'].split('/')
+                query_date = {}
+                query_date[0]=2016
+                query_date[1]=3
+                query_date[2]=18
                 response_data['selecttime'] = data['indextime']
                 datalist = []
+                response_data['action'] = 1
                 #  [0:餵奶,1:副食品,2:點心、水果,3:排便,4:尿布]
                 if data['recordtype'] == 0:
                     baby_records = \
                         baby_breastfeeding.objects.filter(createdat__year=query_date[0], \
                                                           createdat__month=query_date[1], \
-                                                          createdat__day=query_date[2], baby_id=date['bid'])
+                                                          createdat__day=query_date[2], baby_id=data['bid'])
                     for record in baby_records:
                         tmpdict = {}
                         tmpdict['rid'] = record.id
                         tmpdict['text'] = record.content
-                        tmpdict['time'] = record.createdat.hour + ":" + record.createdat.minute
+                        tmpdict['time'] = str(record.createdat.hour) + ":" + str(record.createdat.minute)
                         datalist.append(tmpdict)
                 if data['recordtype'] == 1:
                     baby_records = \
                         baby_grocery.objects.filter(createdat__year=query_date[0], \
                                                     createdat__month=query_date[1], \
-                                                    createdat__day=query_date[2], baby_id=date['bid'])
+                                                    createdat__day=query_date[2], baby_id=data['bid'])
                     for record in baby_records:
                         tmpdict = {}
                         tmpdict['rid'] = record.id
                         tmpdict['text'] = record.content
-                        tmpdict['time'] = record.createdat.hour + ":" + record.createdat.minute
+                        tmpdict['time'] = str(record.createdat.hour) + ":" + str(record.createdat.minute)
                         datalist.append(tmpdict)
                 if data['recordtype'] == 2:
                     baby_records = \
                         baby_dessertfruit.objects.filter(createdat__year=query_date[0], \
                                                          createdat__month=query_date[1], \
-                                                         createdat__day=query_date[2], baby_id=date['bid'])
+                                                         createdat__day=query_date[2], baby_id=data['bid'])
                     for record in baby_records:
                         tmpdict = {}
                         tmpdict['rid'] = record.id
                         tmpdict['text'] = record.content
-                        tmpdict['time'] = record.createdat.hour + ":" + record.createdat.minute
+                        tmpdict['time'] = str(record.createdat.hour) + ":" + str(record.createdat.minute)
                         datalist.append(tmpdict)
                 if data['recordtype'] == 3:
                     baby_records = \
                         baby_defecation.objects.filter(createdat__year=query_date[0], \
                                                        createdat__month=query_date[1], \
-                                                       createdat__day=query_date[2], baby_id=date['bid'])
+                                                       createdat__day=query_date[2], baby_id=data['bid'])
                     for record in baby_records:
                         tmpdict = {}
                         tmpdict['rid'] = record.id
                         tmpdict['text'] = record.content
-                        tmpdict['time'] = record.createdat.hour + ":" + record.createdat.minute
+                        tmpdict['time'] = str(record.createdat.hour) + ":" + str(record.createdat.minute)
                     datalist.append(tmpdict)
                 if data['recordtype'] == 4:
                     baby_records = \
                         baby_diaper.objects.filter(createdat__year=query_date[0], \
                                                    createdat__month=query_date[1], \
-                                                   createdat__day=query_date[2], baby_id=date['bid'])
+                                                   createdat__day=query_date[2], baby_id=data['bid'])
                 for record in baby_records:
                     tmpdict = {}
                     tmpdict['rid'] = record.id
                     tmpdict['text'] = record.content
-                    tmpdict['time'] = record.createdat.hour + ":" + record.createdat.minute
+                    tmpdict['time'] = str(record.createdat.hour) + ":" + str(record.createdat.minute)
                     datalist.append(tmpdict)
             response_data['datalist'] = datalist
         except Exception, ex:
             response_data['action'] = -1
-            response_data['message'] = 'Error:' + ex.message
+            response_data['message'] = 'get_baby_record_detail error:' + ex.message
     return JsonResponse(response_data)
 
 """[HTTP POST][Insert][Update] 餵奶，副食品，點心、水果，排便，尿布的資料
@@ -204,6 +245,7 @@ def cu_baby_record(request):
     response_data = {}
     data = {}
     response_data['action'] = 0
+    response_data['message'] = 'cu_baby_record'
     if request.method == 'POST':
         data = json.loads(request.body)
         try:
@@ -250,7 +292,7 @@ def cu_baby_record(request):
                     response_data['message'] = 'Error: recordtype'
         except Exception, ex:
             response_data['action'] = -1
-            response_data['message'] = 'Error:' + ex.message
+            response_data['message'] = 'cu_baby_record error:' + ex.message
     return JsonResponse(response_data)
 
 """[HTTP POST][Select] 相機畫面的已上傳圖片網址
@@ -283,7 +325,7 @@ def get_baby_picture_imglist(request):
                 response_data['selecttime'] = "all"
         except Exception, ex:
             response_data['action'] = -1
-            response_data['message'] = 'Error:' + ex.message
+            response_data['message'] = 'get_baby_picture_imglist error:' + ex.message
     return JsonResponse(response_data)
 
 """[HTTP POST][Insert] 相機畫面的 +photo 按鈕選擇的圖片
@@ -304,7 +346,7 @@ def c_baby_picture(request):
             response_data['message'] = 'c_baby_picture success'
         except Exception, ex:
             response_data['action'] = -1
-            response_data['message'] = 'Error:' + ex.message
+            response_data['message'] = 'c_baby_picture error:' + ex.message
     return JsonResponse(response_data)
 
 """[HTTP POST][Select] 寶寶聊天室的聊天人資料
@@ -344,6 +386,26 @@ def u_baby_relevance_b2m(request):
                 response_data['message'] = 'Permission denied'
         except Exception, ex:
             response_data['action'] = -1
-            response_data['message'] = 'Error:' + ex.message
+            response_data['message'] = 'u_baby_relevance_b2m error:' + ex.message
+    return JsonResponse(response_data)
+
+"""上傳寶寶頭像
+POST VALUE: file, bid
+"""
+@csrf_exempt
+def updata_baby_pic(request):
+    response_data = {}
+    response_data['action'] = 0
+    if request.method == 'POST':
+        try:
+            bid = request.POST['bid']
+            file_content = ContentFile(request.FILES['uploaded_file'].read())
+            b_data = baby.objects.get(id=bid)
+            b_data.img.save(bid+request.FILES['uploaded_file'].name, file_content)
+            response_data['action'] = 1
+            response_data['message'] = 'updata_baby_pic success'
+        except Exception, ex:
+            response_data['action'] = -1
+            response_data['message'] = ex.message
     return JsonResponse(response_data)
 

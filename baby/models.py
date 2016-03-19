@@ -11,7 +11,7 @@ class baby(models.Model):
     updatedat = models.DateTimeField(auto_now=True)
     name = models.CharField(blank=False, max_length=20)
     birthday = models.DateField(blank=True, null=True)
-    sex = models.CharField(blank=True, null=True, max_length=1) 
+    sex = models.CharField(blank=True, null=True, max_length=2) 
     tips = models.TextField(blank=True, null=True)
     img = models.ImageField(upload_to=PathAndRename('image/baby/'), blank=True, null=True)
     height = models.CharField(blank=True, null=True, max_length=10)

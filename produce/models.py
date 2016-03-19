@@ -19,12 +19,13 @@ class produce(models.Model):
     img = models.ImageField(upload_to=PathAndRename('image/produce/'), blank=True, null=True)
     produce_type_id = models.IntegerField() # models.ForeignKey(produce_type)
 
+from jsonfield import JSONField
 class produce_trade(models.Model):
     id = models.AutoField(primary_key=True)
     createdat = models.DateTimeField(auto_now_add=True)
     updatedat = models.DateTimeField(auto_now=True)
     money = models.IntegerField()
-    trade_data = models.TextField(blank=True, null=True)
-    allpay_data = models.TextField(blank=True, null=True)
+    trade_data = JSONField(blank=True, null=True)
+    allpay_data = JSONField(blank=True, null=True)
     user_id = models.IntegerField() # models.ForeignKey(user)
 
