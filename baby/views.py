@@ -90,11 +90,7 @@ def get_baby_record_simple(request):
             if data.get('indextime'):
                 response_data['selecttime'] = data.get('indextime')
                 response_data['action'] = 1
-                # query_date = data['indextime'].split('/')
-                query_date = {}
-                query_date[0]=2016
-                query_date[1]=3
-                query_date[2]=18
+                query_date = data['indextime'].split('/')
                 # 取得餵奶
                 BreastFeeding = {}
                 bf = baby_breastfeeding.objects.filter(createdat__year=query_date[0], createdat__month=query_date[1], \
@@ -166,14 +162,11 @@ def get_baby_record_detail(request):
         response_data['action'] = 0
         try:
             if data.get('indextime'):
-                # query_date = data['indextime'].split('/')
-                query_date = {}
-                query_date[0]=2016
-                query_date[1]=3
-                query_date[2]=18
+                query_date = data['indextime'].split('/')
                 response_data['selecttime'] = data['indextime']
                 datalist = []
                 response_data['action'] = 1
+                data['recordtype']=int(data['recordtype'])
                 #  [0:餵奶,1:副食品,2:點心、水果,3:排便,4:尿布]
                 if data['recordtype'] == 0:
                     baby_records = \
@@ -218,7 +211,7 @@ def get_baby_record_detail(request):
                         tmpdict['rid'] = record.id
                         tmpdict['text'] = record.content
                         tmpdict['time'] = str(record.createdat.hour) + ":" + str(record.createdat.minute)
-                    datalist.append(tmpdict)
+                        datalist.append(tmpdict)
                 if data['recordtype'] == 4:
                     baby_records = \
                         baby_diaper.objects.filter(createdat__year=query_date[0], \
@@ -250,6 +243,7 @@ def cu_baby_record(request):
         data = json.loads(request.body)
         try:
             response_data['action'] = 1
+            data['recordtype']=int(data['recordtype'])
             # update
             if data.get('rid'):
                 if data['recordtype'] == 0:  # 餵奶 baby_breastfeeding

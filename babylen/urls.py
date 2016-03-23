@@ -24,6 +24,7 @@ from baby.views import cu_baby_record, get_baby_picture_imglist, get_baby_record
 from center.views import get_center_record_simple, get_center_record_detail, c_barcode_cneter_visit, u_center_record_detail
 from notification.views import cu_notification_id, get_notification_datalist
 from discuss.views import get_discuss_group_datalist, get_discuss_article_datalist, c_discuss_group, c_discuss_article
+from produce.views import get_shop_datalist, get_shop_tradelist, c_shop_trade
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -63,6 +64,10 @@ urlpatterns = [
     url(r'^api/v1/get_discuss_article_datalist/', get_discuss_article_datalist),
     url(r'^api/v1/c_discuss_group/', c_discuss_group),
     url(r'^api/v1/c_discuss_article/', c_discuss_article),
+    # produce.view
+    url(r'^api/v1/get_shop_datalist', get_shop_datalist),
+    url(r'^api/v1/get_shop_tradelist', get_shop_tradelist),
+    url(r'^api/v1/c_shop_trade', c_shop_trade),
 ]
 
 from django.conf import settings

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -21,36 +23,36 @@ def get_shop_datalist(request):
             data = json.loads(request.body)
             typedict = {}
             # 取得奶枌資料
-            milk_produce = produce.objects.filter('produce_type_id'=1)
+            milk_produce = produce.objects.filter(produce_type_id=1)
             milk_list = []
             for m_p in milk_produce:
                 MilkPowder = {}
                 MilkPowder['pid'] = m_p.id
                 MilkPowder['name'] = m_p.name
-                MilkPowder['money'] = m_p.money
-                MilkPowder['img'] = m_p.img
+                MilkPowder['money'] = m_p.price
+                MilkPowder['img'] = m_p.img.url
                 milk_list.append(MilkPowder)
             typedict['MilkPowder'] = milk_list
             # 取得尿布資料
-            diapers_produce = produce.objects.filter('produce_type_id'=2)
+            diapers_produce = produce.objects.filter(produce_type_id=2)
             diapers_list = []
             for d_p in diapers_produce:
                 Diapers = {}
                 Diapers['pid'] = d_p.id
                 Diapers['name'] = d_p.name
-                Diapers['money'] = d_p.money
-                Diapers['img'] = d_p.img
+                Diapers['money'] = d_p.price
+                Diapers['img'] = d_p.img.url
                 diapers_list.append(Diapers)
             typedict['Diapers'] = diapers_list
             # 取得尿布資料
-            care_produce = produce.objects.filter('produce_type_id'=3)
+            care_produce = produce.objects.filter(produce_type_id=3)
             care_list = []
             for c_p in care_produce:
                 care_permission = {}
                 care_permission['pid'] = d_p.id
                 care_permission['name'] = d_p.name
-                care_permission['money'] = d_p.money
-                care_permission['img'] = d_p.img
+                care_permission['money'] = d_p.price
+                care_permission['img'] = d_p.img.url
                 care_list.append(care_permission)
             typedict['care_permission'] = care_list
             response_data['typelist'] = typedict
