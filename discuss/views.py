@@ -7,6 +7,9 @@ import json
 
 from discuss.models import discuss_type, discuss, discuss_message
 from baby_user.models import user_normal
+
+from django.core.files.base import ContentFile
+
 """[HTTP POST][Select] 照育討論區的討論串資料列表
 POST VALUE:{"uid":"00000000001","Identify":0}
 RETURN:{"action","datalist":[{"fid","name"}]}
@@ -54,12 +57,19 @@ def get_discuss_article_datalist(request):
             response_data['time'] = d_topic.createdat
             d_list = []
             for d in d_data:
+                imglist = []
+                if (d.img):
+                    imglist.append(d.img.url)
+                if (d.img2):
+                    imglist.append(d.img2.url)
+                if (d.img3):
+                    imglist.append(d.img3.url)
                 d_item = {}
                 d_item['content'] = d.content
                 # u_name = user_normal.objects.get(user_id=data['uid'])
                 d_item['time'] = d.updatedat
                 d_item['name'] = "test"
-                d_item['imglist'] = ""
+                d_item['imglist'] = imglist
                 d_list.append(d_item)
             response_data['datalist'] = d_list
         except Exception, ex:
@@ -97,9 +107,29 @@ def c_discuss_article(request):
         data = json.loads(request.body)
         try:
             response_data['action'] = 1
-            discuss_message.objects.create(discuss_id=data['fid'], content=data['content'], user_id=data['uid'])
+            d_m = discuss_message.objects.create(discuss_id=data['fid'], content=data['content'], user_id=data['uid'])
+            response_data['mid'] = d_m.id
         except Exception, ex:
             response_data['action'] = -1
             response_data['message'] = 'Error:' + ex.message
     return JsonResponse(response_data)
 
+"""上傳討論區照片
+POST VALUE:{"uid","mid","img1","img2","img3"}
+"""
+@csrf_exempt
+def updata_discuss_pic(request):
+    response_data = {}
+    response_data['action'] = 0
+    if request.method == 'POST':
+        try:
+            mid = request.POST['mid']
+            file_content = ContentFile(request.FILES['uploaded_file'].read())
+            m_data = discuss_message.objects.get(id=mid)
+            m_data.img.save(mid+request.FILES['uploaded_file'].name, file_content)
+            response_data['action'] = 1
+            response_data['message'] = 'updata_discuss_pic success'
+        except Exception, ex:
+            response_data['action'] = -1
+            response_data['message'] = ex.message
+    return JsonResponse(response_data)

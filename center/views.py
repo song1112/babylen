@@ -25,12 +25,14 @@ def get_center_record_simple(request):
             center_list = []
             for center in centers:
                 center_item = {}
-                center_data = user_daycarecenter.objects.get(id=user_id_daycarecenter)
+                center_data = user_daycarecenter.objects.get(id=center.user_id_daycarecenter)
                 center_item['cid'] = center.user_id_daycarecenter
-                center_item['name'] = center_data.name
-                # center_item['bonnecount']
+                u = user_normal.objects.get(id=data['uid'])
+                center_item['name'] = u.name
+                b = user_bonne.objects.filter(user_id_daycarecenter=center_item['cid'])
+                center_item['bonnecount'] = b.count()
                 center_item['setuptime'] = center_data.setuptime
-                center_item['img'] = center.img
+                center_item['img'] = "" # center.img
                 center_list.append(center_item)
             response_data['datalist'] = center_list
         except Exception, ex:
@@ -53,27 +55,57 @@ def get_center_record_detail(request):
             center_data = user_daycarecenter.objects.get(id=data['cid'])
             # 0:經營理念,1:飲食規劃,2:環境規劃,3:學習規劃,4:關於我們,5:全部資料
             if data['datatype'] == 0:
-                response_data['content'] = center_data.business_philosophy
+                if center_data.business_philosophy:
+                    response_data['content'] = center_data.business_philosophy
+                else:
+                    response_data['content'] = ""
             elif data['datatype'] == 1:
-                response_data['content'] = center_data.diet_plan
+                if center_data.diet_plan:
+                    response_data['content'] = center_data.diet_plan
+                else:
+                    response_data['content'] = ""
             elif (data['datatype'] == 2) or (data['datatype'] == 5):
-                center_pics = user_daycarecenter.objects.filter(user_id=center_data.user_id)
+                center_pics = center_picture.objects.filter(user_id=center_data.user_id)
                 pics_list = []
                 for pic in center_pics:
                     pics_list.append(pic.img)
                 if data['datatype'] == 2:
-                    response_data['imglist'] = pics_list
+                    if pics_list:
+                        response_data['imglist'] = pics_list
+                    else:
+                        response_data['imglist'] = ""
                 else:
-                    response_data['environment_plan_imglist'] = pics_list
-                    response_data['setuptime'] = center_data.setuptime
-                    response_data['business_philosophy'] = center_data.business_philosophy
-                    response_data['diet_plan'] = center_data.diet_plan
-                    response_data['learn_plan'] = center_data.learn_plan
-                    response_data['about_us'] = center_data.about_us
+                    response_data['environment_plan'] = pics_list
+                    if center_data.setuptime:
+                        response_data['setuptime'] = center_data.setuptime
+                    else:
+                        response_data['setuptime'] = ""
+                    if center_data.business_philosophy:
+                        response_data['business_philosophy'] = center_data.business_philosophy
+                    else:
+                        response_data['business_philosophy'] = ""
+                    if center_data.diet_plan:
+                        response_data['diet_plan'] = center_data.diet_plan
+                    else:
+                        response_data['diet_plan'] = ""
+                    if center_data.learn_plan:
+                        response_data['learn_plan'] = center_data.learn_plan
+                    else:
+                        response_data['learn_plan'] = ""
+                    if center_data.about_us:
+                        response_data['about_us'] = center_data.about_us
+                    else:
+                        response_data['about_us'] = ""
             elif data['datatype'] == 3:
-                response_data['content'] = center_data.learn_plan
+                if center_data.learn_plan:
+                    response_data['content'] = center_data.learn_plan
+                else:
+                    response_data['content'] = ""
             elif data['datatype'] == 4:
-                response_data['content'] = center_data.about_us
+                if center_data.about_us:
+                    response_data['content'] = center_data.about_us
+                else:
+                    response_data['content'] = ""
             else:
                 response_data['action'] = 1
                 response_data['message'] = 'Error: datatype'
@@ -95,13 +127,14 @@ def u_center_record_detail(request):
         data = json.loads(request.body)
         try:
             response_data['action'] = 1
+            data['datatype'] = int(data['datatype'])
             if data['datatype'] == 6:
-                center = user_daycarecenter.objects.get(id=data['uid'])
-                center['business_philosophy'] = data['business_philosophy']
-                center['diet_plan'] = data['diet_plan']
-                center['learn_plan'] = data['learn_plan']
-                center['about_us'] = data['about_us']
-                center.save()
+                u_c = user_daycarecenter.objects.get(user_id=data['uid'])
+                u_c.business_philosophy = data['business_philosophy']
+                u_c.diet_plan = data['diet_plan']
+                u_c.learn_plan = data['learn_plan']
+                u_c.about_us = data['about_us']
+                u_c.save()
         except Exception, ex:
             response_data['action'] = -1
             response_data['message'] = 'Error:' + ex.message
@@ -119,7 +152,9 @@ def c_barcode_cneter_visit(request):
         data = json.loads(request.body)
         try:
             response_data['action'] = 1
-            center_picture.objects.create(user_id=data['uid'], user_id_daycarecenter=data['cid'])
+            c = user_daycarecenter.objects.get(user_id=data['cid'])
+            data['cid'] = c.id
+            center_visit.objects.create(user_id=data['uid'], user_id_daycarecenter=data['cid'])
         except Exception, ex:
             response_data['action'] = -1
             response_data['message'] = 'Error:' + ex.message

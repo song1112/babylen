@@ -4,6 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
 import datetime
+import pytz
 
 from baby.models import *
 
@@ -90,6 +91,12 @@ def get_baby_record_simple(request):
             if data.get('indextime'):
                 response_data['selecttime'] = data.get('indextime')
                 response_data['action'] = 1
+                # local = pytz.timezone ('Asia/Taipei')
+#                naive = datetime.datetime.strptime(data['indextime'], '%Y/%m/%d')
+#                local_dt = local.localize(naive, is_dst=None)
+#                utc_dt = local_dt.astimezone (pytz.utc)
+#                dt_str = utc_dt.strftime ("%Y/%m/%d")
+#                query_date = dt_str.split('/')
                 query_date = data['indextime'].split('/')
                 # 取得餵奶
                 BreastFeeding = {}
@@ -97,7 +104,8 @@ def get_baby_record_simple(request):
                                                        createdat__day=query_date[2], baby_id=data['bid']).order_by('-id')
                 BreastFeeding['todaycount'] = bf.count()
                 if bf.count() > 0:
-                    BreastFeeding['finaltime'] = str(bf[0].createdat.hour) + ":" + str(bf[0].createdat.minute)
+                    t = bf[0].updatedat.astimezone(pytz.timezone('Asia/Taipei'))
+                    BreastFeeding['finaltime'] = str(t.hour) + ":" + str(t.minute)
                 else:
                     BreastFeeding['finaltime'] = ""
                 response_data['BreastFeeding'] = BreastFeeding
@@ -107,7 +115,8 @@ def get_baby_record_simple(request):
                                                 createdat__day=query_date[2], baby_id=data['bid']).order_by('-id')
                 Grocery['todaycount'] = g.count()
                 if g.count() > 0:
-                    Grocery['finaltime'] = str(g[0].createdat.hour) + ":" + str(g[0].createdat.minute)
+                    t = g[0].updatedat.astimezone(pytz.timezone('Asia/Taipei'))
+                    Grocery['finaltime'] = str(t.hour) + ":" + str(t.minute)
                 else:
                     Grocery['finaltime'] = ""
                 response_data['Grocery'] = Grocery
@@ -117,7 +126,8 @@ def get_baby_record_simple(request):
                                                 createdat__day=query_date[2], baby_id=data['bid']).order_by('-id')
                 DessertFruit['todaycount'] = df.count()
                 if df.count() > 0:
-                    DessertFruit['finaltime'] = str(df[0].createdat.hour) + ":" + str(df[0].createdat.minute)
+                    t = df[0].updatedat.astimezone(pytz.timezone('Asia/Taipei'))
+                    DessertFruit['finaltime'] = str(t.hour) + ":" + str(t.minute)
                 else:
                     DessertFruit['finaltime'] = ""
                 response_data['DessertFruit'] = DessertFruit
@@ -127,7 +137,8 @@ def get_baby_record_simple(request):
                                                 createdat__day=query_date[2], baby_id=data['bid']).order_by('-id')
                 Defecation['todaycount'] = de.count()
                 if de.count() > 0:
-                    Defecation['finaltime'] = str(de[0].createdat.hour) + ":" + str(de[0].createdat.minute)
+                    t = de[0].updatedat.astimezone(pytz.timezone('Asia/Taipei'))
+                    Defecation['finaltime'] = str(t.hour) + ":" + str(t.minute)
                 else:
                     Defecation['finaltime'] = ""
                 response_data['Defecation'] = Defecation
@@ -137,7 +148,8 @@ def get_baby_record_simple(request):
                                                 createdat__day=query_date[2], baby_id=data['bid']).order_by('-id')
                 Diaper['todaycount'] = d.count()
                 if d.count() > 0:
-                    Diaper['finaltime'] = str(d[0].createdat.hour) + ":" + str(d[0].createdat.minute)
+                    t = d[0].updatedat.astimezone(pytz.timezone('Asia/Taipei'))
+                    Diaper['finaltime'] = str(t.hour) + ":" + str(t.minute)
                 else:
                     Diaper['finaltime'] = ""
                 response_data['Diaper'] = Diaper
@@ -177,7 +189,8 @@ def get_baby_record_detail(request):
                         tmpdict = {}
                         tmpdict['rid'] = record.id
                         tmpdict['text'] = record.content
-                        tmpdict['time'] = str(record.createdat.hour) + ":" + str(record.createdat.minute)
+                        t = record.updatedat.astimezone(pytz.timezone('Asia/Taipei'))
+                        tmpdict['time'] = str(t.hour) + ":" + str(t.minute)
                         datalist.append(tmpdict)
                 if data['recordtype'] == 1:
                     baby_records = \
@@ -188,7 +201,8 @@ def get_baby_record_detail(request):
                         tmpdict = {}
                         tmpdict['rid'] = record.id
                         tmpdict['text'] = record.content
-                        tmpdict['time'] = str(record.createdat.hour) + ":" + str(record.createdat.minute)
+                        t = record.updatedat.astimezone(pytz.timezone('Asia/Taipei'))
+                        tmpdict['time'] = str(t.hour) + ":" + str(t.minute)
                         datalist.append(tmpdict)
                 if data['recordtype'] == 2:
                     baby_records = \
@@ -199,7 +213,8 @@ def get_baby_record_detail(request):
                         tmpdict = {}
                         tmpdict['rid'] = record.id
                         tmpdict['text'] = record.content
-                        tmpdict['time'] = str(record.createdat.hour) + ":" + str(record.createdat.minute)
+                        t = record.updatedat.astimezone(pytz.timezone('Asia/Taipei'))
+                        tmpdict['time'] = str(t.hour) + ":" + str(t.minute)
                         datalist.append(tmpdict)
                 if data['recordtype'] == 3:
                     baby_records = \
@@ -210,19 +225,21 @@ def get_baby_record_detail(request):
                         tmpdict = {}
                         tmpdict['rid'] = record.id
                         tmpdict['text'] = record.content
-                        tmpdict['time'] = str(record.createdat.hour) + ":" + str(record.createdat.minute)
+                        t = record.updatedat.astimezone(pytz.timezone('Asia/Taipei'))
+                        tmpdict['time'] = str(t.hour) + ":" + str(t.minute)
                         datalist.append(tmpdict)
                 if data['recordtype'] == 4:
                     baby_records = \
                         baby_diaper.objects.filter(createdat__year=query_date[0], \
                                                    createdat__month=query_date[1], \
                                                    createdat__day=query_date[2], baby_id=data['bid'])
-                for record in baby_records:
-                    tmpdict = {}
-                    tmpdict['rid'] = record.id
-                    tmpdict['text'] = record.content
-                    tmpdict['time'] = str(record.createdat.hour) + ":" + str(record.createdat.minute)
-                    datalist.append(tmpdict)
+                    for record in baby_records:
+                        tmpdict = {}
+                        tmpdict['rid'] = record.id
+                        tmpdict['text'] = record.content
+                        t = record.updatedat.astimezone(pytz.timezone('Asia/Taipei'))
+                        tmpdict['time'] = str(t.hour) + ":" + str(t.minute)
+                        datalist.append(tmpdict)
             response_data['datalist'] = datalist
         except Exception, ex:
             response_data['action'] = -1
@@ -332,10 +349,10 @@ def c_baby_picture(request):
     response_data['action'] = 0
     if request.method == 'POST':
         try:
-            bid = request.POST['bid']
+            bid = request.POST['bpid']
             file_content = ContentFile(request.FILES['uploaded_file'].read())
             baby_pic = baby_picture.objects.create(baby_id=bid)
-            baby_pic.img.save(uid+request.FILES['uploaded_file'].name, file_content)
+            baby_pic.img.save(bid+request.FILES['uploaded_file'].name, file_content)
             response_data['action'] = 1
             response_data['message'] = 'c_baby_picture success'
         except Exception, ex:
@@ -403,3 +420,25 @@ def updata_baby_pic(request):
             response_data['message'] = ex.message
     return JsonResponse(response_data)
 
+"""取得寶寶資料
+POST VALUE: bid
+"""
+@csrf_exempt
+def get_baby_data(request):
+    response_data = {}
+    response_data['action'] = 0
+    if request.method == 'POST':
+        try:
+            response_data['action'] = 1
+            data = json.loads(request.body)
+            b_data = baby.objects.get(id=data['bid'])
+            response_data['name'] = b_data.name
+            response_data['nickname'] = b_data.nickname
+            response_data['height'] = b_data.height
+            response_data['weight'] = b_data.weight
+            response_data['birthday'] = datetime.datetime.fromtimestamp(b_data.birthday).strftime('%Y/%m/%d')
+            response_data['tips'] = b_data.tips
+        except Exception, ex:
+            #response_data['action'] = -1
+            response_data['message'] = ex.message
+    return JsonResponse(response_data)

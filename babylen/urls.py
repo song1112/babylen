@@ -16,14 +16,14 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
-from baby_user.views import register, login, get_user_datalist, u_user_datalist, get_baby_datalist, updata_user_pic
+from baby_user.views import register, login, get_user_datalist, u_user_datalist, get_baby_datalist, updata_user_pic, get_center_bonne
 from baby_user.views import u_barcode_relevance_m2c, u_barcode_relevance_b2c, u_barcode_relevance_b2m, u_barcode_relevance_b2p
 from babylen.views import get_main_datalist
 from baby.views import cu_baby, u_baby_relevance_remove, u_baby_relevance_b2m, c_baby_picture, updata_baby_pic
-from baby.views import cu_baby_record, get_baby_picture_imglist, get_baby_record_simple, get_baby_record_detail
+from baby.views import cu_baby_record, get_baby_picture_imglist, get_baby_record_simple, get_baby_record_detail, get_baby_data
 from center.views import get_center_record_simple, get_center_record_detail, c_barcode_cneter_visit, u_center_record_detail
 from notification.views import cu_notification_id, get_notification_datalist
-from discuss.views import get_discuss_group_datalist, get_discuss_article_datalist, c_discuss_group, c_discuss_article
+from discuss.views import get_discuss_group_datalist, get_discuss_article_datalist, c_discuss_group, c_discuss_article, updata_discuss_pic
 from produce.views import get_shop_datalist, get_shop_tradelist, c_shop_trade
 
 urlpatterns = [
@@ -39,6 +39,7 @@ urlpatterns = [
     url(r'^api/v1/u_barcode_relevance_b2m/', u_barcode_relevance_b2m),
     url(r'^api/v1/u_barcode_relevance_b2p/', u_barcode_relevance_b2p),
     url(r'^api/v1/updata_user_pic/', updata_user_pic),
+    url(r'^api/v1/get_center_bonne/', get_center_bonne),
     # babylen.views
     url(r'^api/v1/get_main_datalist/', get_main_datalist),
     # baby.views
@@ -51,6 +52,7 @@ urlpatterns = [
     url(r'^api/v1/get_baby_record_simple/', get_baby_record_simple),
     url(r'^api/v1/get_baby_record_detail/', get_baby_record_detail),
     url(r'^api/v1/updata_baby_pic/', updata_baby_pic),
+    url(r'^api/v1/get_baby_data/', get_baby_data),
     # center.views
     url(r'^api/v1/get_center_record_simple/', get_center_record_simple),
     url(r'^api/v1/get_center_record_detail/', get_center_record_detail),
@@ -64,6 +66,7 @@ urlpatterns = [
     url(r'^api/v1/get_discuss_article_datalist/', get_discuss_article_datalist),
     url(r'^api/v1/c_discuss_group/', c_discuss_group),
     url(r'^api/v1/c_discuss_article/', c_discuss_article),
+    url(r'^api/v1/updata_discuss_pic/', updata_discuss_pic),
     # produce.view
     url(r'^api/v1/get_shop_datalist', get_shop_datalist),
     url(r'^api/v1/get_shop_tradelist', get_shop_tradelist),

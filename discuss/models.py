@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from baby_user.models import user 
+from baby_user.models import user, PathAndRename
 
 class discuss_type(models.Model):
     id = models.AutoField(primary_key=True)
@@ -25,3 +25,6 @@ class discuss_message(models.Model):
     content = models.TextField()
     discuss_id = models.IntegerField(blank=True, null=True) # models.ForeignKey(discuss)
     user_id = models.IntegerField() # models.ForeignKey(user) 
+    img = models.ImageField(upload_to=PathAndRename('image/discuss_message1/'), blank=True, null=True)
+    img2 = models.ImageField(upload_to=PathAndRename('image/discuss_message2/'), blank=True, null=True)
+    img3 = models.ImageField(upload_to=PathAndRename('image/discuss_message3/'), blank=True, null=True)

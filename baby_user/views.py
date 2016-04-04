@@ -102,7 +102,7 @@ def get_user_datalist(request):
                 response_data['bonne'] = resp_bonne
             elif data['Identify']==2:
                 resp_center = {}
-                c_data = user_bonne.objects.get(user_id=data['uid'])
+                c_data = user_daycarecenter.objects.get(user_id=data['uid'])
                 resp_center['setuptime'] = c_data.setuptime
                 resp_center['business_philosophy'] = c_data.business_philosophy
                 resp_center['diet_plan'] = c_data.diet_plan
@@ -138,10 +138,15 @@ def u_user_datalist(request):
                                 #    birthday=data['birthday'], sex=data['sex'], tips=['tips']\
                                 #    img=['img'], name=data['name'])
             if data['Identify']==1:
+                data['baby_count_record'] = int(data['baby_count_record'])
+                data['specialty'] = int(data['specialty'])
                 ub_data = user_bonne.objects.get(user_id=data['uid'])
-                                      #update(seniority=data['seniority'], \
-                                      # baby_count_record=data['baby_count_record'], specialty=data['specialty'], \
-                                      # experience=data['experience'])
+                ub_data.seniority = data['seniority']
+                ub_data.baby_count_record = data['baby_count_record']
+                ub_data.specialty=data['specialty']
+                ub_data.experience=data['experience']
+                ub_data.save()
+
         except Exception, ex:
             response_data['action'] = -1
             response_data['message'] = 'Error:' + ex.message
@@ -183,7 +188,7 @@ def u_barcode_relevance_b2m(request):
         data = json.loads(request.body)
         try:
             # 找到寶寶
-            baby_data = baby.objects.get(user_id=data['bid'])
+            baby_data = baby.objects.get(id=data['bid'])
             # 找到保姆
             bonner_data = user_bonne.objects.get(user_id=data['uid'])
             # 新增保姆id到寶寶的保姆id
@@ -207,7 +212,7 @@ def u_barcode_relevance_b2p(request):
         data = json.loads(request.body)
         try:
             # 找到寶寶
-            baby_data = baby.objects.get(user_id=data['bid'])
+            baby_data = baby.objects.get(id=data['bid'])
             # 新增id到寶寶的父母id
             baby_data.user_id = data['uid']
             baby_data.save()
@@ -229,7 +234,7 @@ def u_barcode_relevance_b2c(request):
         data = json.loads(request.body)
         try:
             # 找到寶寶
-            baby_data = baby.objects.get(user_id=data['bid'])
+            baby_data = baby.objects.get(id=data['bid'])
             # 找到托育中心
             center_data = user_daycarecenter.objects.get(user_id=data['uid'])
             # 新增id到寶寶的托育中心id
@@ -299,15 +304,65 @@ def updata_user_pic(request):
     if request.method == 'POST':
         try:
             uid = request.POST['uid']
-            file_content = ContentFile(request.FILES['uploaded_file'].read())
+            response_data['action'] = -2
+            resizedImage = resize_uploaded_image(request.FILES['uploaded_file'])
+            content = File(resizedImage)
+            #file_content = ContentFile(resize_uploaded_image(request.FILES['uploaded_file']).read)
             u_data = user_normal.objects.get(user_id=uid)
-            u_data.img.save(uid+request.FILES['uploaded_file'].name, file_content)
+            response_data['action'] = 0
+            u_data.img.save(uid+request.FILES['uploaded_file'].name, content)
             response_data['action'] = 1
             response_data['message'] = 'updata_user_pic success'
+        except Exception, ex:
+            #response_data['action'] = -1
+            response_data['message'] = ex.message
+    return JsonResponse(response_data)
+
+"""取得中心旗下的所有保母
+POST VALUE: uid
+RETURN: {datalist:[boid,uid,name,seniority,specialty,experience,baby_count_record]}
+"""
+@csrf_exempt
+def get_center_bonne(request):
+    response_data = {}
+    data = {}
+    response_data['action'] = 0
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        try:
+            bonnes = user_bonne.objects.filter(user_id_daycarecenter=user_daycarecenter.objects.get(user_id=data['uid']).id)
+            datalist = []
+            for b in bonnes:
+                datadict = {}
+                datadict['boid'] = b.user_id
+                datadict['uid'] = b.user_id
+                datadict['name'] = user_normal.objects.get(id=data['uid']).name
+                datadict['seniority'] = b.seniority
+                datadict['specialty'] = b.specialty
+                datadict['experience'] = b.experience
+                datadict['baby_count_record'] = b.baby_count_record
+                datalist.append(datadict)
+            response_data['datalist'] = datalist
+            response_data['action'] = 1
         except Exception, ex:
             response_data['action'] = -1
             response_data['message'] = ex.message
     return JsonResponse(response_data)
 
 
+import StringIO
+from PIL import Image
+def resize_uploaded_image(buf):
+    image = Image.open(buf)
 
+    (width, height) = image.size
+    #(width, height) = scale_dimensions(width, height, longest_side=240)
+
+    resizedImage = image.resize((180, 180))
+
+    # Turn back into file-like object
+    resizedImageFile = StringIO.StringIO()
+    resizedImage.save(resizedImageFile , 'PNG', optimize = True)
+    resizedImageFile.seek(0)    # So that the next read starts at the beginning
+
+    return resizedImageFile

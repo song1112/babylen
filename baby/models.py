@@ -9,14 +9,14 @@ class baby(models.Model):
     id = models.AutoField(primary_key=True)
     createdat = models.DateTimeField(auto_now_add=True)
     updatedat = models.DateTimeField(auto_now=True)
-    name = models.CharField(blank=False, max_length=20)
+    name = models.CharField(blank=False, max_length=20, default="")
     birthday = models.DateField(blank=True, null=True)
-    sex = models.CharField(blank=True, null=True, max_length=2) 
-    tips = models.TextField(blank=True, null=True)
-    img = models.ImageField(upload_to=PathAndRename('image/baby/'), blank=True, null=True)
-    height = models.CharField(blank=True, null=True, max_length=10)
-    weight = models.CharField(blank=True, null=True, max_length=10)
-    nickname = models.CharField(blank=False, max_length=20)
+    sex = models.CharField(blank=True, null=True, max_length=2, default=0) 
+    tips = models.TextField(blank=True, null=True, default="")
+    img = models.ImageField(upload_to=PathAndRename('image/baby/'), blank=True, null=True, default="")
+    height = models.CharField(blank=True, null=True, max_length=10, default="")
+    weight = models.CharField(blank=True, null=True, max_length=10, default="")
+    nickname = models.CharField(blank=False, max_length=20, default="")
     user_id = models.IntegerField()
     user_id_father = models.IntegerField(blank=True, null=True)
     user_id_mother = models.IntegerField(blank=True, null=True)
@@ -41,7 +41,7 @@ class baby_breastfeeding(models.Model):
     id = models.AutoField(primary_key=True)
     createdat = models.DateTimeField(auto_now_add=True)
     updatedat = models.DateTimeField(auto_now=True)
-    content = models.CharField(blank=True, null=True, max_length=30)    # 餵奶內容 
+    content = models.CharField(blank=True, null=True, max_length=30, default="")    # 餵奶內容 
     baby_id = models.IntegerField() # models.IntegerField(unique=True) # models.ForeignKey(baby)
 
 # 寶寶聊天記錄
@@ -59,7 +59,7 @@ class baby_defecation(models.Model):
     id = models.AutoField(primary_key=True)
     createdat = models.DateTimeField(auto_now_add=True)
     updatedat = models.DateTimeField(auto_now=True)
-    content = models.CharField(blank=True, null=True, max_length=30)
+    content = models.CharField(blank=True, null=True, max_length=30, default="")
     baby_id = models.IntegerField() # models.ForeignKey(baby)
 
 #  寶寶日誌之點心水果
@@ -67,7 +67,7 @@ class baby_dessertfruit(models.Model):
     id = models.AutoField(primary_key=True)
     createdat = models.DateTimeField(auto_now_add=True)
     updatedat = models.DateTimeField(auto_now=True)
-    content = models.CharField(blank=True, null=True, max_length=30)
+    content = models.CharField(blank=True, null=True, max_length=30, default="")
     baby_id = models.IntegerField() # models.ForeignKey(baby)
 
 #  寶寶日誌之尿布
@@ -75,7 +75,7 @@ class baby_diaper(models.Model):
     id = models.AutoField(primary_key=True)
     createdat = models.DateTimeField(auto_now_add=True)
     updatedat = models.DateTimeField(auto_now=True)
-    content = models.CharField(blank=True, null=True, max_length=30)
+    content = models.CharField(blank=True, null=True, max_length=30, default="")
     baby_id = models.IntegerField() # models.ForeignKey(baby)
 
 # 寶寶日誌之副食品
@@ -83,14 +83,14 @@ class baby_grocery(models.Model):
     id = models.AutoField(primary_key=True)
     createdat = models.DateTimeField(auto_now_add=True)
     updatedat = models.DateTimeField(auto_now=True)
-    content = models.CharField(blank=True, null=True, max_length=30)
+    content = models.CharField(blank=True, null=True, max_length=30, default="")
     baby_id = models.IntegerField() # models.ForeignKey(baby)
 
 class baby_picture(models.Model):
     id = models.AutoField(primary_key=True)
     createdat = models.DateTimeField(auto_now_add=True)
     updatedat = models.DateTimeField(auto_now=True)
-    img = models.ImageField(upload_to=PathAndRename('image/baby_picture/'), blank=True, null=True)
+    img = models.ImageField(upload_to=PathAndRename('image/baby_picture/'), blank=True, null=True, default="")
     baby_id = models.IntegerField() # models.ForeignKey(baby)
 
 # 寶寶親戚(寶寶聊天室可看但不能發言者)
