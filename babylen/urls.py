@@ -21,7 +21,8 @@ from baby_user.views import u_barcode_relevance_m2c, u_barcode_relevance_b2c, u_
 from babylen.views import get_main_datalist
 from baby.views import cu_baby, u_baby_relevance_remove, u_baby_relevance_b2m, c_baby_picture, updata_baby_pic
 from baby.views import cu_baby_record, get_baby_picture_imglist, get_baby_record_simple, get_baby_record_detail, get_baby_data
-from center.views import get_center_record_simple, get_center_record_detail, c_barcode_cneter_visit, u_center_record_detail
+from center.views import get_center_record_simple, get_center_record_detail, c_barcode_cneter_visit
+from center.views import updata_center_pic, u_center_record_detail
 from notification.views import cu_notification_id, get_notification_datalist
 from discuss.views import get_discuss_group_datalist, get_discuss_article_datalist, c_discuss_group, c_discuss_article, updata_discuss_pic
 from produce.views import get_shop_datalist, get_shop_tradelist, c_shop_trade
@@ -58,6 +59,7 @@ urlpatterns = [
     url(r'^api/v1/get_center_record_detail/', get_center_record_detail),
     url(r'^api/v1/c_barcode_cneter_visit/', c_barcode_cneter_visit),
     url(r'^api/v1/u_center_record_detail/', u_center_record_detail),
+    url(r'^api/v1/updata_center_pic/', updata_center_pic),
     # notification.views
     url(r'^api/v1/cu_notification_id/', cu_notification_id),
     url(r'^api/v1/get_notification_datalist/', get_notification_datalist),

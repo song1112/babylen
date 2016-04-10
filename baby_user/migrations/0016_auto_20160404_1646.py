@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='user_bonne',
             name='baby_count_record',
-            field=models.IntegerField(blank=True, default='', null=True),
+            field=models.IntegerField(blank=True, null=True),
         ),
         migrations.AlterField(
             model_name='user_bonne',
@@ -55,7 +55,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='user_daycarecenter',
             name='setuptime',
-            field=models.DateField(blank=True, default='', null=True),
+            field=models.DateField(blank=True, null=True),
         ),
         migrations.AlterField(
             model_name='user_normal',
@@ -65,7 +65,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='user_normal',
             name='birthday',
-            field=models.DateField(blank=True, default='', null=True),
+            field=models.DateField(blank=True, null=True),
         ),
         migrations.AlterField(
             model_name='user_normal',

@@ -6,6 +6,7 @@ import json
 import datetime
 import pytz
 
+from baby_user.views import resize_uploaded_image
 from baby.models import *
 
 from PIL import ImageFile
@@ -28,6 +29,7 @@ def cu_baby(request):
             if data.get('birthday')!="" and data.get('birthday'):
                 date_object = datetime.datetime.strptime(data['birthday'], '%Y/%m/%d')
             if data.get('bid'):
+                response_data['bid'] = data.get('bid')
                 b = baby.objects.get(id=data['bid'])
                 b.name = data['name']
                 b.sex = data['sex']
@@ -350,9 +352,11 @@ def c_baby_picture(request):
     if request.method == 'POST':
         try:
             bid = request.POST['bpid']
-            file_content = ContentFile(request.FILES['uploaded_file'].read())
+            resizedImage = resize_uploaded_image(request.FILES['uploaded_file'])
+            content = File(resizedImage)
+            #file_content = ContentFile(request.FILES['uploaded_file'].read())
             baby_pic = baby_picture.objects.create(baby_id=bid)
-            baby_pic.img.save(bid+request.FILES['uploaded_file'].name, file_content)
+            baby_pic.img.save(bid+request.FILES['uploaded_file'].name, content)
             response_data['action'] = 1
             response_data['message'] = 'c_baby_picture success'
         except Exception, ex:
@@ -410,9 +414,11 @@ def updata_baby_pic(request):
     if request.method == 'POST':
         try:
             bid = request.POST['bid']
-            file_content = ContentFile(request.FILES['uploaded_file'].read())
+            # file_content = ContentFile(request.FILES['uploaded_file'].read())
+            resizedImage = resize_uploaded_image(request.FILES['uploaded_file'])
+            content = File(resizedImage)
             b_data = baby.objects.get(id=bid)
-            b_data.img.save(bid+request.FILES['uploaded_file'].name, file_content)
+            b_data.img.save(bid+request.FILES['uploaded_file'].name, content)
             response_data['action'] = 1
             response_data['message'] = 'updata_baby_pic success'
         except Exception, ex:

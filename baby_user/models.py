@@ -42,7 +42,7 @@ class user_normal(models.Model):
     updatedat = models.DateTimeField(auto_now=True)
     email = models.EmailField(blank=True, null=True)
     name = models.CharField(blank=True, null=True, max_length=20, default="")
-    birthday = models.DateField(blank=True, null=True)
+    birthday = models.DateField(null=True)
     sex = models.CharField(blank=True, null=True, max_length=1, default="")    
     tips = models.TextField(blank=True, null=True, default="")
     img = models.ImageField(upload_to=PathAndRename('image/user_normal/'), blank=True)
@@ -68,8 +68,8 @@ class user_bonne(models.Model):
     seniority = models.CharField(blank=True, null=True, max_length=3, default="")   # 保姆年資
     specialty = models.TextField(blank=True, null=True, default="")                 # 保姆專長
     experience = models.TextField(blank=True, null=True, default="")                # 保姆專長
-    baby_count_record = models.IntegerField(blank=True, null=True, default="")      # 保姆曾照育寶寶數
-    user_id = models.IntegerField(unique=True) # models.ForeignKey(user)
+    baby_count_record = models.IntegerField(blank=True, null=True)      # 保姆曾照育寶寶數
+    user_id =  models.IntegerField(unique=True) # models.ForeignKey(user)
     user_id_daycarecenter = models.IntegerField(blank=True, null=True) # models.ForeignKey(user_daycarecenter)
 
 

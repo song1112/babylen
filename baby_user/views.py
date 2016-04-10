@@ -8,6 +8,9 @@ import json
 from baby_user.models import user, user_normal, user_daycarecenter, user_bonne
 from baby.models import baby
 
+import datetime
+import pytz
+
 """ [HTTP POST][Select] 使用者登入
 POST VALUE:[account, password, Identify]
 """
@@ -52,15 +55,17 @@ def register(request):
                 auth_parents=data['Identify_parents'], auth_bonne=data['Identify_bonne'], \
                 auth_daycarecenter=data['Identify_daycarecenter'])
             user_normal.objects.create(email=data['email'], user_id=reg_user.id)
-            # 如果有保母權限則建立保母資料
-            if data['Identify_bonne']==1:
-                user_bonne.objects.create(user_id=reg_user.id)
-            # 如果有中心權限則建立保母資料
-            if data['Identify_daycarecenter']==1:
+            # 如果有中心權限則建立中心資料
+            if int(data['Identify_daycarecenter'])==1:
                 user_daycarecenter.objects.create(user_id=reg_user.id)
+            # 如果有保母權限則建立保母資料
+            response_data['action'] = 3
+            if int(data['Identify_bonne'])==1:
+                response_data['action'] = 2
+                user_bonne.objects.create(user_id=reg_user.id)
             response_data['action'] = 1
         except Exception, ex:
-            response_data['action'] = -1
+#            response_data['action'] = -1
             response_data['message'] = 'Error:' + ex.message
     return JsonResponse(response_data)
 
@@ -84,11 +89,20 @@ def get_user_datalist(request):
             resp_normal = {}
             response_data['action'] = 1
             resp_normal['email'] = u_data.email
-            resp_normal['name'] = u_data.name
-            resp_normal['birthday'] = u_data.birthday
+            if u_data.name:
+                resp_normal['name'] = u_data.name
+            else:
+                resp_normal['name'] = "沒有名字"
+            if u_data.birthday:
+                resp_normal['birthday'] = u_data.birthday.strftime('%Y/%m/%d')
+            else:
+                resp_normal['birthday'] = ""
             resp_normal['sex'] = u_data.sex
             resp_normal['tips'] = u_data.tips
-            resp_normal['img'] = u_data.img.url
+            if u_data.img:
+                resp_normal['img'] = u_data.img.url
+            else:
+                resp_normal['img'] = ""
             resp_normal['phone'] = u_data.phone
             resp_normal['address'] = u_data.address
             response_data['normal'] = resp_normal
@@ -134,6 +148,11 @@ def u_user_datalist(request):
             un_data.email = data['email']
             un_data.phone=data['phone']
             un_data.address=data['address']
+            un_data.name=data['name']
+            un_data.tips=data['tips']
+            if data.get('birthday')!="" and data.get('birthday'):
+                date_object = datetime.datetime.strptime(data['birthday'], '%Y/%m/%d')
+                un_data.birthday=date_object
             un_data.save()
                                 #    birthday=data['birthday'], sex=data['sex'], tips=['tips']\
                                 #    img=['img'], name=data['name'])
@@ -334,9 +353,10 @@ def get_center_bonne(request):
             datalist = []
             for b in bonnes:
                 datadict = {}
+                response_data['h'] = b.user_id
                 datadict['boid'] = b.user_id
                 datadict['uid'] = b.user_id
-                datadict['name'] = user_normal.objects.get(id=data['uid']).name
+                datadict['name'] = user_normal.objects.get(user_id=b.user_id).name
                 datadict['seniority'] = b.seniority
                 datadict['specialty'] = b.specialty
                 datadict['experience'] = b.experience
@@ -358,7 +378,7 @@ def resize_uploaded_image(buf):
     (width, height) = image.size
     #(width, height) = scale_dimensions(width, height, longest_side=240)
 
-    resizedImage = image.resize((180, 180))
+    resizedImage = image.resize((240, 240))
 
     # Turn back into file-like object
     resizedImageFile = StringIO.StringIO()

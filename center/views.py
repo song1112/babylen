@@ -7,6 +7,7 @@ import json
 
 from center.models import center_picture, center_visit
 from baby_user.models import user_normal, user_daycarecenter, user_bonne
+from baby_user.views import resize_uploaded_image
 
 """[HTTP POST][Select] 托育中心參訪紀錄的主資料列表
 POST VALUE:{"uid","Identify"}
@@ -27,11 +28,14 @@ def get_center_record_simple(request):
                 center_item = {}
                 center_data = user_daycarecenter.objects.get(id=center.user_id_daycarecenter)
                 center_item['cid'] = center.user_id_daycarecenter
-                u = user_normal.objects.get(id=data['uid'])
+                u = user_normal.objects.get(user_id=center.user_id)
                 center_item['name'] = u.name
                 b = user_bonne.objects.filter(user_id_daycarecenter=center_item['cid'])
                 center_item['bonnecount'] = b.count()
-                center_item['setuptime'] = center_data.setuptime
+                if center_data.setuptime:
+                    center_item['setuptime'] = center_data.setuptime
+                else:
+                    center_item['setuptime'] = 1
                 center_item['img'] = "" # center.img
                 center_list.append(center_item)
             response_data['datalist'] = center_list
@@ -68,7 +72,7 @@ def get_center_record_detail(request):
                 center_pics = center_picture.objects.filter(user_id=center_data.user_id)
                 pics_list = []
                 for pic in center_pics:
-                    pics_list.append(pic.img)
+                    pics_list.append(pic.img.url)
                 if data['datatype'] == 2:
                     if pics_list:
                         response_data['imglist'] = pics_list
@@ -158,4 +162,28 @@ def c_barcode_cneter_visit(request):
         except Exception, ex:
             response_data['action'] = -1
             response_data['message'] = 'Error:' + ex.message
+    return JsonResponse(response_data)
+
+from PIL import ImageFile
+from django.core.files import File
+from django.core.files.base import ContentFile
+
+"""
+"""
+@csrf_exempt
+def updata_center_pic(request):
+    response_data = {}
+    response_data['action'] = 0
+    if request.method == 'POST':
+        try:
+            uid = request.POST['cpid']
+            resizedImage = resize_uploaded_image(request.FILES['uploaded_file'])
+            content = File(resizedImage)
+            center_pic = center_picture.objects.create(user_id=uid)
+            center_pic.img.save(uid+request.FILES['uploaded_file'].name, content)
+            response_data['action'] = 1
+            response_data['message'] = 'updata_center_pic success'
+        except Exception, ex:
+            response_data['action'] = -1
+            response_data['message'] = ex.message
     return JsonResponse(response_data)
