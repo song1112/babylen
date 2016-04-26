@@ -22,6 +22,11 @@ class PathAndRename(object):
         # return the whole path to the file
         return os.path.join(self.sub_path, filename)
 
+class header_pic(models.Model):
+    id = models.AutoField(primary_key=True)
+    createdat = models.DateTimeField(auto_now_add=True)
+    updatedat = models.DateTimeField(auto_now=True)
+    img = models.ImageField(upload_to=PathAndRename('image/header_pic/'), blank=True)
 
 class user(models.Model):
     id = models.AutoField(primary_key=True)
@@ -60,6 +65,7 @@ class user_daycarecenter(models.Model):
     learn_plan = models.TextField(blank=True, null=True, default="")            # 托育中心學習規劃
     about_us = models.TextField(blank=True, null=True, default="")              # 托育中心關於我們
     user_id =  models.IntegerField(unique=True) # models.ForeignKey(user)
+    baby_auth = models.IntegerField(blank=True, null=True, default=0)
 
 class user_bonne(models.Model):
     id = models.AutoField(primary_key=True)
@@ -68,8 +74,9 @@ class user_bonne(models.Model):
     seniority = models.CharField(blank=True, null=True, max_length=3, default="")   # 保姆年資
     specialty = models.TextField(blank=True, null=True, default="")                 # 保姆專長
     experience = models.TextField(blank=True, null=True, default="")                # 保姆專長
-    baby_count_record = models.IntegerField(blank=True, null=True)      # 保姆曾照育寶寶數
+    baby_count_record = models.CharField(blank=True, null=True, max_length=5, default="")     # 保姆曾照育寶寶數
     user_id =  models.IntegerField(unique=True) # models.ForeignKey(user)
     user_id_daycarecenter = models.IntegerField(blank=True, null=True) # models.ForeignKey(user_daycarecenter)
+    baby_auth = models.IntegerField(blank=True, null=True, default=0)
 
 

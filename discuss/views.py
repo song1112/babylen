@@ -26,7 +26,7 @@ def get_discuss_group_datalist(request):
         data = json.loads(request.body)
         try:
             response_data['action'] = 1
-            d_data = discuss.objects.all()
+            d_data = discuss.objects.order_by('-id')
             d_list = []
             for d in d_data:
                 d_item = {}

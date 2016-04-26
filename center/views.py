@@ -28,8 +28,10 @@ def get_center_record_simple(request):
                 center_item = {}
                 center_data = user_daycarecenter.objects.get(id=center.user_id_daycarecenter)
                 center_item['cid'] = center.user_id_daycarecenter
-                u = user_normal.objects.get(user_id=center.user_id)
+                cu = user_daycarecenter.objects.get(id=center_item['cid'])
+                u = user_normal.objects.get(user_id=cu.user_id)
                 center_item['name'] = u.name
+                center_item['uid'] = u.user_id
                 b = user_bonne.objects.filter(user_id_daycarecenter=center_item['cid'])
                 center_item['bonnecount'] = b.count()
                 if center_data.setuptime:

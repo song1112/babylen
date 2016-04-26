@@ -46,6 +46,11 @@ def get_main_datalist(request):
                 baby_data['nickname'] = baby_item.nickname
                 baby_data['bonne'] = baby_item.user_id_bonne
                 baby_data['tips'] = baby_item.tips
+                baby_data['sex'] = '未知'
+                if(baby_item.sex==0):
+                    response_data['sex'] = '女'
+                if(baby_item.sex==1):
+                    response_data['sex'] = '男'
                 baby_coll.append(baby_data)
             response_data['datalist'] = baby_coll
             response_data['action'] = 1

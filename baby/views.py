@@ -442,8 +442,16 @@ def get_baby_data(request):
             response_data['nickname'] = b_data.nickname
             response_data['height'] = b_data.height
             response_data['weight'] = b_data.weight
-            response_data['birthday'] = datetime.datetime.fromtimestamp(b_data.birthday).strftime('%Y/%m/%d')
+            response_data['birthday'] = ''
+            if b_data.birthday:
+                response_data['birthday'] = str(b_data.birthday.year)+'/'+str(b_data.birthday.month)+'/'+str(b_data.birthday.day)
             response_data['tips'] = b_data.tips
+            response_data['sex'] = '未知'
+            if(b_data.sex=='0'):
+                response_data['sex'] = '女'
+            if(b_data.sex=='1'):
+                response_data['sex'] = '男'
+                
         except Exception, ex:
             #response_data['action'] = -1
             response_data['message'] = ex.message

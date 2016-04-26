@@ -8,7 +8,7 @@ class discussAdmin(admin.ModelAdmin):
     list_display = ('id', 'createdat', 'updatedat', 'title', 'content', 'discuss_type_id', 'user_id')
 
 class discuss_messageAdmin(admin.ModelAdmin):
-    list_display = ('id', 'createdat', 'updatedat', 'content', 'discuss_id', 'user_id')
+    list_display = ('id', 'createdat', 'updatedat', 'content', 'discuss_id', 'user_id', 'img', 'img2', 'img3')
 
 admin.site.register(discuss_type, discuss_typeAdmin)
 admin.site.register(discuss, discussAdmin)

@@ -7,6 +7,7 @@ import json
 
 from baby_user.models import user, user_normal, user_daycarecenter, user_bonne
 from baby.models import baby
+from center.models import center_picture
 
 import datetime
 import pytz
@@ -117,6 +118,11 @@ def get_user_datalist(request):
             elif data['Identify']==2:
                 resp_center = {}
                 c_data = user_daycarecenter.objects.get(user_id=data['uid'])
+                c_pics = center_picture.objects.filter(user_id=data['uid'])
+                center_pic = []
+                for pic in c_pics:
+                    center_pic.append(pic.img.url)
+                resp_center['imglist'] = center_pic
                 resp_center['setuptime'] = c_data.setuptime
                 resp_center['business_philosophy'] = c_data.business_philosophy
                 resp_center['diet_plan'] = c_data.diet_plan
@@ -158,7 +164,7 @@ def u_user_datalist(request):
                                 #    img=['img'], name=data['name'])
             if data['Identify']==1:
                 data['baby_count_record'] = int(data['baby_count_record'])
-                data['specialty'] = int(data['specialty'])
+                data['specialty'] = data['specialty']
                 ub_data = user_bonne.objects.get(user_id=data['uid'])
                 ub_data.seniority = data['seniority']
                 ub_data.baby_count_record = data['baby_count_record']
@@ -210,10 +216,16 @@ def u_barcode_relevance_b2m(request):
             baby_data = baby.objects.get(id=data['bid'])
             # 找到保姆
             bonner_data = user_bonne.objects.get(user_id=data['uid'])
-            # 新增保姆id到寶寶的保姆id
-            baby_data.user_id_bonne = bonner_data.id
-            baby_data.save()
-            response_data['action'] = 1
+            # 取得保母的托育權限數
+            auth_cont = bonner_data.baby_auth
+            # 取得目前的照護寶寶數
+            baby_cont = baby.objects.filter(user_id_bonne=bonne_data.id).count()
+            # 判斷是否還有權限可照護
+            if baby_cont < auth_cont:
+                # 新增保姆id到寶寶的保姆id
+                baby_data.user_id_bonne = bonner_data.id
+                baby_data.save()
+                response_data['action'] = 1
         except Exception, ex:
             response_data['action'] = -1
             response_data['message'] = 'Error:' + ex.message
@@ -256,10 +268,18 @@ def u_barcode_relevance_b2c(request):
             baby_data = baby.objects.get(id=data['bid'])
             # 找到托育中心
             center_data = user_daycarecenter.objects.get(user_id=data['uid'])
-            # 新增id到寶寶的托育中心id
-            baby_data.user_id_daycarecenter = center_data.id
-            baby_data.save()
-            response_data['action'] = 1
+            # 取得中心的托育權限數
+            auth_cont = center_data.baby_auth
+            # 取得目前的照護寶寶數
+            baby_cont = baby.objects.filter(user_id_daycarecenter=center_data.id).count()
+            # 判斷是否還有權限可照護
+            if baby_cont < auth_cont:
+                # 新增id到寶寶的托育中心id
+                baby_data.user_id_daycarecenter = center_data.id
+                baby_data.save()
+                response_data['action'] = 1
+            else:
+                response_data['message'] = '權限不足'
         except Exception, ex:
             response_data['action'] = -1
             response_data['message'] = 'Error:' + ex.message
@@ -386,3 +406,31 @@ def resize_uploaded_image(buf):
     resizedImageFile.seek(0)    # So that the next read starts at the beginning
 
     return resizedImageFile
+
+"""取得中心旗下的所有保母
+POST VALUE: uid, Identify, count
+RETURN: {action}
+"""
+@csrf_exempt
+def add_baby_auth(request):
+    response_data = {}
+    response_data['action'] = 0
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        try:
+            if data['Identify'] == 1 or data['Identify'] == "1":
+                u_data = user_bonne.objects.get(user_id=data['uid'])
+                u_data.baby_auth += int(data['count'])
+                u_data.save()
+                response_data['action'] = 1
+            if data['Identify'] == 2 or data['Identify'] == "2":
+                u_data = user_daycarecenter.objects.get(user_id=data['uid'])
+                u_data.baby_auth += int(data['count'])
+                u_data.save()
+                response_data['action'] = 1
+        except Exception, ex:
+            response_data['action'] = -1
+            response_data['message'] = ex.message
+    return JsonResponse(response_data)
+            
+
