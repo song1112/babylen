@@ -160,7 +160,9 @@ def c_barcode_cneter_visit(request):
             response_data['action'] = 1
             c = user_daycarecenter.objects.get(user_id=data['cid'])
             data['cid'] = c.id
-            center_visit.objects.create(user_id=data['uid'], user_id_daycarecenter=data['cid'])
+            # 查詢參訪紀錄是否有被創建
+            if not center_visit.objects.filter(user_id=data['uid'], user_id_daycarecenter=data['cid']).exists():
+                center_visit.objects.create(user_id=data['uid'], user_id_daycarecenter=data['cid'])
         except Exception, ex:
             response_data['action'] = -1
             response_data['message'] = 'Error:' + ex.message

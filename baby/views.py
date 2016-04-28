@@ -93,12 +93,6 @@ def get_baby_record_simple(request):
             if data.get('indextime'):
                 response_data['selecttime'] = data.get('indextime')
                 response_data['action'] = 1
-                # local = pytz.timezone ('Asia/Taipei')
-#                naive = datetime.datetime.strptime(data['indextime'], '%Y/%m/%d')
-#                local_dt = local.localize(naive, is_dst=None)
-#                utc_dt = local_dt.astimezone (pytz.utc)
-#                dt_str = utc_dt.strftime ("%Y/%m/%d")
-#                query_date = dt_str.split('/')
                 query_date = data['indextime'].split('/')
                 # 取得餵奶
                 BreastFeeding = {}
@@ -395,6 +389,8 @@ def u_baby_relevance_b2m(request):
                     # 新增保母id到寶寶
                     baby_data = baby.objects.get(id=int(bid))
                     baby_data.user_id_bonne = data['mid']
+                    # 在保母托育裡新增紀錄
+                    care_record.objects.create(bonne_id=data['mid'], baby_id=baby_data.id, sex=baby_data.sex)
                     baby_data.save()
                 response_data['action'] = 1
             else:

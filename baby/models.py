@@ -101,3 +101,12 @@ class baby_relatives(models.Model):
     baby_id = models.IntegerField() # models.ForeignKey(baby)
     user_id = models.IntegerField() # models.ForeignKey(user)
 
+# 保母圖表資料
+class care_record(models.Model):
+    id = models.AutoField(primary_key=True)
+    createdat = models.DateTimeField(auto_now_add=True)
+    updatedat = models.DateTimeField(auto_now=True)
+    baby_id = models.IntegerField()
+    bonne_id = models.IntegerField()
+    sex = models.CharField(blank=True, null=True, max_length=2, default='-1')
+

@@ -6,7 +6,7 @@ from django.http import JsonResponse
 import json
 
 from baby_user.models import user, user_normal, user_daycarecenter, user_bonne
-from baby.models import baby
+from baby.models import baby, care_record
 from center.models import center_picture
 
 import datetime
@@ -43,6 +43,8 @@ def login(request):
 
 
 """ [HTTP POST][Insert] 使用者註冊
+POST VALUE:[account,password,Identify_parents,Identify_bonne,Identify_daycarecenter,email]
+RETURN:[action,message]
 """
 @csrf_exempt
 def register(request):
@@ -110,6 +112,7 @@ def get_user_datalist(request):
             if data['Identify']==1:
                 b_data = user_bonne.objects.get(user_id=data['uid'])
                 resp_bonne = {}
+                resp_bonne['auth_count'] = b_data.baby_auth
                 resp_bonne['seniority'] = b_data.seniority
                 resp_bonne['baby_count_record'] = b_data.baby_count_record
                 resp_bonne['specialty'] = b_data.specialty
@@ -122,6 +125,7 @@ def get_user_datalist(request):
                 center_pic = []
                 for pic in c_pics:
                     center_pic.append(pic.img.url)
+                resp_bonne['auth_count'] = c_data.baby_auth
                 resp_center['imglist'] = center_pic
                 resp_center['setuptime'] = c_data.setuptime
                 resp_center['business_philosophy'] = c_data.business_philosophy
@@ -224,6 +228,8 @@ def u_barcode_relevance_b2m(request):
             if baby_cont < auth_cont:
                 # 新增保姆id到寶寶的保姆id
                 baby_data.user_id_bonne = bonner_data.id
+                # 新增寶寶的托育紀錄
+                care_record.objects.create(bonne_id=bonner_data.id, baby_id=baby_data.id, sex=baby_data.sex)
                 baby_data.save()
                 response_data['action'] = 1
         except Exception, ex:
@@ -407,7 +413,7 @@ def resize_uploaded_image(buf):
 
     return resizedImageFile
 
-"""取得中心旗下的所有保母
+"""增加托育權限
 POST VALUE: uid, Identify, count
 RETURN: {action}
 """
@@ -433,4 +439,48 @@ def add_baby_auth(request):
             response_data['message'] = ex.message
     return JsonResponse(response_data)
             
-
+"""保母資料圖表
+POST VALUE:{uid}
+REATURN:{action,boy_count_1st,girl_count_1st,boy_count_2nd,girl_count_2nd,boy_count_3rd,girl_count_3rd,boy_count_4th,girl_count_4th}
+"""
+@csrf_exempt
+def bonne_care_chart(request):
+    response_data = {}
+    response_data['action'] = 0
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        try:
+            # 取得保母id
+            bonne_id = user_bonne.objects.get(user_id=data['uid']).id
+            # 取得當月份
+            m = datetime.date.today().month
+            y = datetime.date.today().year
+            record4th = care_record
+            record3rd = care_record
+            record2nd = care_record
+            record1st = care_record
+            if m < 7:
+                record4th = care_record.objects.filter(bonne_id=bonne_id, createdat__range=[str(y)+"-01-01",str(y)+"-06-30"])
+                record3rd = care_record.objects.filter(bonne_id=bonne_id, createdat__range=[str(y-1)+"-07-01",str(y-1)+"-12-31"])
+                record2nd = care_record.objects.filter(bonne_id=bonne_id, createdat__range=[str(y-1)+"-01-01",str(y-1)+"-6-30"])
+                record1st = care_record.objects.filter(bonne_id=bonne_id, createdat__range=[str(y-2)+"-07-01",str(y-2)+"-12-31"])
+            else:
+                record4th = care_record.objects.filter(bonne_id=bonne_id, createdat__range=[str(y)+"-07-01",str(y)+"-12-31"])
+                record3rd = care_record.objects.filter(bonne_id=bonne_id, createdat__range=[str(y)+"-01-01",str(y)+"-6-30"])
+                record2nd = care_record.objects.filter(bonne_id=bonne_id, createdat__range=[str(y-1)+"-07-01",str(y-1)+"-12-31"])
+                record1st = care_record.objects.filter(bonne_id=bonne_id, createdat__range=[str(y-1)+"-01-01",str(y-1)+"-6-30"])
+            response_data['boy_count_4th'] = record4th.filter(sex='1').count()
+            response_data['girl_count_4th'] = record4th.filter(sex='0').count()
+            response_data['boy_count_3rd'] = record3rd.filter(sex='1').count()
+            response_data['girl_count_3rd'] = record3rd.filter(sex='0').count()
+            response_data['boy_count_2nd'] = record2nd.filter(sex='1').count()
+            response_data['girl_count_2nd'] = record2nd.filter(sex='0').count()
+            response_data['boy_count_1st'] = record1st.filter(sex='1').count()
+            response_data['girl_count_1st'] = record1st.filter(sex='0').count()
+            for d in record1st:
+                response_data['1th'] = d.createdat
+            response_data['action'] = 1
+        except Exception, ex:
+            response_data['action'] = -1
+            response_data['message'] = ex.message
+    return JsonResponse(response_data)

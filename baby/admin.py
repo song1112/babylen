@@ -33,6 +33,9 @@ class baby_pictureAdmin(admin.ModelAdmin):
 class baby_relativesAdmin(admin.ModelAdmin): 
     list_display = ('id', 'createdat', 'updatedat', 'user_id', 'baby_id')
 
+class care_recordAdmin(admin.ModelAdmin):
+    list_display = ('id', 'createdat', 'updatedat', 'bonne_id', 'baby_id', 'sex')
+
 admin.site.register(baby, babyAdmin)
 admin.site.register(baby_barcode, baby_barcodeAdmin)
 admin.site.register(baby_breastfeeding, baby_breastfeedingAdmin)
@@ -43,4 +46,4 @@ admin.site.register(baby_diaper, baby_diaperAdmin)
 admin.site.register(baby_grocery, baby_groceryAdmin)
 admin.site.register(baby_picture, baby_pictureAdmin)
 admin.site.register(baby_relatives, baby_relativesAdmin)
-
+admin.site.register(care_record, care_recordAdmin)
