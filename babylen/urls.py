@@ -18,7 +18,7 @@ from django.contrib import admin
 
 from baby_user.views import register, login, get_user_datalist, u_user_datalist, get_baby_datalist, updata_user_pic, get_center_bonne
 from baby_user.views import u_barcode_relevance_m2c, u_barcode_relevance_b2c, u_barcode_relevance_b2m, u_barcode_relevance_b2p
-from baby_user.views import bonne_care_chart, add_baby_auth
+from baby_user.views import bonne_care_chart, add_baby_auth, get_header_pic
 from babylen.views import get_main_datalist
 from baby.views import cu_baby, u_baby_relevance_remove, u_baby_relevance_b2m, c_baby_picture, updata_baby_pic
 from baby.views import cu_baby_record, get_baby_picture_imglist, get_baby_record_simple, get_baby_record_detail, get_baby_data
@@ -44,6 +44,7 @@ urlpatterns = [
     url(r'^api/v1/get_center_bonne/', get_center_bonne),
     url(r'^api/v1/add_baby_auth/', add_baby_auth),
     url(r'^api/v1/bonne_care_chart/', bonne_care_chart),
+    url(r'^api/v1/get_header_pic/', get_header_pic),
     # babylen.views
     url(r'^api/v1/get_main_datalist/', get_main_datalist),
     # baby.views

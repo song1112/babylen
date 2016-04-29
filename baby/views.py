@@ -382,15 +382,16 @@ def u_baby_relevance_b2m(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         try:
-            if data['Identify'] == 2:
+            if int(data['Identify']) == 2:
                 # 分割寶寶id
                 bid_list = data['bid_text'].split(',')
                 for bid in bid_list:
                     # 新增保母id到寶寶
                     baby_data = baby.objects.get(id=int(bid))
                     baby_data.user_id_bonne = data['mid']
-                    # 在保母托育裡新增紀錄
-                    care_record.objects.create(bonne_id=data['mid'], baby_id=baby_data.id, sex=baby_data.sex)
+                    if not care_record.objects.filter(bonne_id=data['mid'], baby_id=baby_data.id).exists():
+                        # 在保母托育裡新增紀錄
+                        care_record.objects.create(bonne_id=data['mid'], baby_id=baby_data.id, sex=baby_data.sex)
                     baby_data.save()
                 response_data['action'] = 1
             else:

@@ -74,3 +74,8 @@
         REATURN:{action,boy_count_1st,girl_count_1st,boy_count_2nd,girl_count_2nd,boy_count_3rd,girl_count_3rd,boy_count_4th,girl_count_4th}
 
 > 越後面的計數代表越近的日期，假設今年是2016/01/01，4th代表的區間是2016/01/01-2016/06/30，3th代表2015/07/01-2015/12/31，依此類推
+
+- get\_header\_pic：取得主畫面圖片
+
+        POST VALUE:{}
+        REATURN:{"imglist":[]}

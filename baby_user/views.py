@@ -5,7 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
 
-from baby_user.models import user, user_normal, user_daycarecenter, user_bonne
+from baby_user.models import user, user_normal, user_daycarecenter, user_bonne, header_pic
 from baby.models import baby, care_record
 from center.models import center_picture
 
@@ -223,13 +223,14 @@ def u_barcode_relevance_b2m(request):
             # 取得保母的托育權限數
             auth_cont = bonner_data.baby_auth
             # 取得目前的照護寶寶數
-            baby_cont = baby.objects.filter(user_id_bonne=bonne_data.id).count()
+            baby_cont = baby.objects.filter(user_id_bonne=bonner_data.id).count()
             # 判斷是否還有權限可照護
             if baby_cont < auth_cont:
                 # 新增保姆id到寶寶的保姆id
                 baby_data.user_id_bonne = bonner_data.id
-                # 新增寶寶的托育紀錄
-                care_record.objects.create(bonne_id=bonner_data.id, baby_id=baby_data.id, sex=baby_data.sex)
+                if not care_record.objects.filter(bonne_id=bonner_data.id, baby_id=baby_data.id).exists():
+                    # 新增寶寶的托育紀錄
+                    care_record.objects.create(bonne_id=bonner_data.id, baby_id=baby_data.id, sex=baby_data.sex)
                 baby_data.save()
                 response_data['action'] = 1
         except Exception, ex:
@@ -282,6 +283,9 @@ def u_barcode_relevance_b2c(request):
             if baby_cont < auth_cont:
                 # 新增id到寶寶的托育中心id
                 baby_data.user_id_daycarecenter = center_data.id
+                if not care_record.objects.filter(center_id=center_data.id, baby_id=baby_data.id).exists():
+                    # 新增托育紀錄
+                    care_record.objects.create(center_id=center_data.id, baby_id=baby_data.id, sex=baby_data.sex)
                 baby_data.save()
                 response_data['action'] = 1
             else:
@@ -440,7 +444,7 @@ def add_baby_auth(request):
     return JsonResponse(response_data)
             
 """保母資料圖表
-POST VALUE:{uid}
+POST VALUE:{uid, Identify}
 REATURN:{action,boy_count_1st,girl_count_1st,boy_count_2nd,girl_count_2nd,boy_count_3rd,girl_count_3rd,boy_count_4th,girl_count_4th}
 """
 @csrf_exempt
@@ -452,6 +456,8 @@ def bonne_care_chart(request):
         try:
             # 取得保母id
             bonne_id = user_bonne.objects.get(user_id=data['uid']).id
+            # 取得中心id
+            center_id = user_daycarecenter.objects.get(user_id=data['uid']).id
             # 取得當月份
             m = datetime.date.today().month
             y = datetime.date.today().year
@@ -460,15 +466,27 @@ def bonne_care_chart(request):
             record2nd = care_record
             record1st = care_record
             if m < 7:
-                record4th = care_record.objects.filter(bonne_id=bonne_id, createdat__range=[str(y)+"-01-01",str(y)+"-06-30"])
-                record3rd = care_record.objects.filter(bonne_id=bonne_id, createdat__range=[str(y-1)+"-07-01",str(y-1)+"-12-31"])
-                record2nd = care_record.objects.filter(bonne_id=bonne_id, createdat__range=[str(y-1)+"-01-01",str(y-1)+"-6-30"])
-                record1st = care_record.objects.filter(bonne_id=bonne_id, createdat__range=[str(y-2)+"-07-01",str(y-2)+"-12-31"])
+                if int(data['Identify']) == 1:  # 保母
+                    record4th = care_record.objects.filter(bonne_id=bonne_id, createdat__range=[str(y)+"-01-01",str(y)+"-06-30"])
+                    record3rd = care_record.objects.filter(bonne_id=bonne_id, createdat__range=[str(y-1)+"-07-01",str(y-1)+"-12-31"])
+                    record2nd = care_record.objects.filter(bonne_id=bonne_id, createdat__range=[str(y-1)+"-01-01",str(y-1)+"-6-30"])
+                    record1st = care_record.objects.filter(bonne_id=bonne_id, createdat__range=[str(y-2)+"-07-01",str(y-2)+"-12-31"])
+                elif int(data['Identify']) == 2: # 中心
+                    record4th = care_record.objects.filter(center_id=center_id, createdat__range=[str(y)+"-01-01",str(y)+"-06-30"])
+                    record3rd = care_record.objects.filter(center_id=center_id, createdat__range=[str(y-1)+"-07-01",str(y-1)+"-12-31"])
+                    record2nd = care_record.objects.filter(center_id=center_id, createdat__range=[str(y-1)+"-01-01",str(y-1)+"-6-30"])
+                    record1st = care_record.objects.filter(center_id=center_id, createdat__range=[str(y-2)+"-07-01",str(y-2)+"-12-31"])
             else:
-                record4th = care_record.objects.filter(bonne_id=bonne_id, createdat__range=[str(y)+"-07-01",str(y)+"-12-31"])
-                record3rd = care_record.objects.filter(bonne_id=bonne_id, createdat__range=[str(y)+"-01-01",str(y)+"-6-30"])
-                record2nd = care_record.objects.filter(bonne_id=bonne_id, createdat__range=[str(y-1)+"-07-01",str(y-1)+"-12-31"])
-                record1st = care_record.objects.filter(bonne_id=bonne_id, createdat__range=[str(y-1)+"-01-01",str(y-1)+"-6-30"])
+                if int(data['Identify']) == 1:  # 保母
+                    record4th = care_record.objects.filter(bonne_id=bonne_id, createdat__range=[str(y)+"-07-01",str(y)+"-12-31"])
+                    record3rd = care_record.objects.filter(bonne_id=bonne_id, createdat__range=[str(y)+"-01-01",str(y)+"-6-30"])
+                    record2nd = care_record.objects.filter(bonne_id=bonne_id, createdat__range=[str(y-1)+"-07-01",str(y-1)+"-12-31"])
+                    record1st = care_record.objects.filter(bonne_id=bonne_id, createdat__range=[str(y-1)+"-01-01",str(y-1)+"-6-30"])
+                elif int(data['Identify']) == 2: # 中心
+                    record4th = care_record.objects.filter(center_id=center_id, createdat__range=[str(y)+"-07-01",str(y)+"-12-31"])
+                    record3rd = care_record.objects.filter(center_id=center_id, createdat__range=[str(y)+"-01-01",str(y)+"-6-30"])
+                    record2nd = care_record.objects.filter(center_id=center_id, createdat__range=[str(y-1)+"-07-01",str(y-1)+"-12-31"])
+                    record1st = care_record.objects.filter(center_id=center_id, createdat__range=[str(y-1)+"-01-01",str(y-1)+"-6-30"])
             response_data['boy_count_4th'] = record4th.filter(sex='1').count()
             response_data['girl_count_4th'] = record4th.filter(sex='0').count()
             response_data['boy_count_3rd'] = record3rd.filter(sex='1').count()
@@ -484,3 +502,25 @@ def bonne_care_chart(request):
             response_data['action'] = -1
             response_data['message'] = ex.message
     return JsonResponse(response_data)
+
+"""主畫面圖
+POST VALUE:
+REATURN:imglist
+"""
+@csrf_exempt
+def get_header_pic(request):
+    response_data = {}
+    response_data['action'] = 0
+    if request.method == 'POST':
+        try:
+            pics = header_pic.objects.all()
+            imglist = []
+            for pic in pics:
+                imglist.append(pic.img.url)
+            response_data['imglist'] = imglist
+            response_data['action'] = 1
+        except Exception, ex:
+            response_data['action'] = -1
+            response_data['message'] = ex.message
+    return JsonResponse(response_data)
+

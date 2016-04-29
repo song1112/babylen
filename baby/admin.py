@@ -34,7 +34,7 @@ class baby_relativesAdmin(admin.ModelAdmin):
     list_display = ('id', 'createdat', 'updatedat', 'user_id', 'baby_id')
 
 class care_recordAdmin(admin.ModelAdmin):
-    list_display = ('id', 'createdat', 'updatedat', 'bonne_id', 'baby_id', 'sex')
+    list_display = ('id', 'createdat', 'updatedat', 'bonne_id', 'baby_id', 'sex', 'center_id')
 
 admin.site.register(baby, babyAdmin)
 admin.site.register(baby_barcode, baby_barcodeAdmin)

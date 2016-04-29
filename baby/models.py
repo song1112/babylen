@@ -107,6 +107,7 @@ class care_record(models.Model):
     createdat = models.DateTimeField(auto_now_add=True)
     updatedat = models.DateTimeField(auto_now=True)
     baby_id = models.IntegerField()
-    bonne_id = models.IntegerField()
+    bonne_id = models.IntegerField(null=True, blank=True)
+    center_id = models.IntegerField(null=True, blank=True)
     sex = models.CharField(blank=True, null=True, max_length=2, default='-1')
 
