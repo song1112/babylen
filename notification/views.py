@@ -8,7 +8,7 @@ import json
 from notification.models import notification_apns, notification_gcm
 
 """[HTTP POST][Update] 推播裝置資料新增修改
-POST VALUE:{"provider","useragent","deviceid","user_id"}
+POST VALUE:{"provider","useragent","deviceid","user_id", "token"}
 """
 @csrf_exempt
 def cu_notification_id(request):
@@ -21,7 +21,7 @@ def cu_notification_id(request):
             response_data['action'] = 1
             # [0:GCM, 1:APNS]
             if data['provider'] == 0:
-                notification_gcm.objects.create(useragent=data['useragent'], deviceid=data['deviceid'], user_id=data['user_id'])    
+                notification_gcm.objects.create(token=data['token'], user_id=data['user_id'])    
             elif data['provider'] == 1:
                 notification_apns.objects.create(useragent=data['useragent'], deviceid=data['deviceid'], user_id=data['user_id'])
             else:
@@ -53,8 +53,7 @@ def get_notification_datalist(request):
                     gcm_item['id'] = gcm.id
                     gcm_item['createdat'] = gcm.createdat
                     gcm_item['updatedat'] = gcm.updatedat
-                    gcm_item['useragent'] = gcm.useragent
-                    gcm_item['deviceid'] = gcm.deviceid
+                    gcm_item['token'] = gcm.token
                     gcm_item['user_id'] = gcm.user_id
                     all_list.append(gcm_item)
                 response_data['datalist'] = all_list

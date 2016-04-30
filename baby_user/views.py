@@ -125,7 +125,7 @@ def get_user_datalist(request):
                 center_pic = []
                 for pic in c_pics:
                     center_pic.append(pic.img.url)
-                resp_bonne['auth_count'] = c_data.baby_auth
+                resp_center['auth_count'] = c_data.baby_auth
                 resp_center['imglist'] = center_pic
                 resp_center['setuptime'] = c_data.setuptime
                 resp_center['business_philosophy'] = c_data.business_philosophy
@@ -316,7 +316,7 @@ def get_baby_datalist(request):
                 for bonne_data in bonnes_data:
                     bonne_item = {}
                     bonne_item['mid'] = bonne_data.id
-                    u_data = user_normal.objects.get(id=bonne_data.user_id)
+                    u_data = user_normal.objects.get(user_id=bonne_data.user_id)
                     bonne_item['name'] = u_data.name
                     bonne_item['img'] = u_data.img.url
                     # 找到保母旗下的所有寶寶
@@ -327,7 +327,7 @@ def get_baby_datalist(request):
                         baby_item = {}
                         baby_item['bid'] = baby_data.id
                         baby_item['name'] = baby_data.name
-                        baby_item['img'] = baby_data.img
+                        baby_item['img'] = baby_data.img.url
                         babys_list.append(baby_item)
                     bonne_item['datalist'] = babys_list  # 儲存保母旗下寶寶資料
                     bonnes_list.append(bonne_item)
@@ -354,7 +354,7 @@ def updata_user_pic(request):
         try:
             uid = request.POST['uid']
             response_data['action'] = -2
-            resizedImage = resize_uploaded_image(request.FILES['uploaded_file'])
+            resizedImage = request.FILES['uploaded_file']
             content = File(resizedImage)
             #file_content = ContentFile(resize_uploaded_image(request.FILES['uploaded_file']).read)
             u_data = user_normal.objects.get(user_id=uid)

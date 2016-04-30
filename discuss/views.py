@@ -128,7 +128,7 @@ def updata_discuss_pic(request):
     if request.method == 'POST':
         try:
             mid = request.POST['mid']
-            resizedImage = resize_uploaded_image(request.FILES['uploaded_file'])
+            resizedImage = request.FILES['uploaded_file']
             content = File(resizedImage)
             # file_content = ContentFile(request.FILES['uploaded_file'].read())
             m_data = discuss_message.objects.get(id=mid)

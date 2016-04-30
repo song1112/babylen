@@ -181,7 +181,7 @@ def updata_center_pic(request):
     if request.method == 'POST':
         try:
             uid = request.POST['cpid']
-            resizedImage = resize_uploaded_image(request.FILES['uploaded_file'])
+            resizedImage = request.FILES['uploaded_file']
             content = File(resizedImage)
             center_pic = center_picture.objects.create(user_id=uid)
             center_pic.img.save(uid+request.FILES['uploaded_file'].name, content)

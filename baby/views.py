@@ -180,7 +180,7 @@ def get_baby_record_detail(request):
                     baby_records = \
                         baby_breastfeeding.objects.filter(createdat__year=query_date[0], \
                                                           createdat__month=query_date[1], \
-                                                          createdat__day=query_date[2], baby_id=data['bid'])
+                                                          createdat__day=query_date[2], baby_id=data['bid']).order_by('-updatedat')
                     for record in baby_records:
                         tmpdict = {}
                         tmpdict['rid'] = record.id
@@ -192,7 +192,7 @@ def get_baby_record_detail(request):
                     baby_records = \
                         baby_grocery.objects.filter(createdat__year=query_date[0], \
                                                     createdat__month=query_date[1], \
-                                                    createdat__day=query_date[2], baby_id=data['bid'])
+                                                    createdat__day=query_date[2], baby_id=data['bid']).order_by('-updatedat')
                     for record in baby_records:
                         tmpdict = {}
                         tmpdict['rid'] = record.id
@@ -204,7 +204,7 @@ def get_baby_record_detail(request):
                     baby_records = \
                         baby_dessertfruit.objects.filter(createdat__year=query_date[0], \
                                                          createdat__month=query_date[1], \
-                                                         createdat__day=query_date[2], baby_id=data['bid'])
+                                                         createdat__day=query_date[2], baby_id=data['bid']).order_by('-updatedat')
                     for record in baby_records:
                         tmpdict = {}
                         tmpdict['rid'] = record.id
@@ -216,7 +216,7 @@ def get_baby_record_detail(request):
                     baby_records = \
                         baby_defecation.objects.filter(createdat__year=query_date[0], \
                                                        createdat__month=query_date[1], \
-                                                       createdat__day=query_date[2], baby_id=data['bid'])
+                                                       createdat__day=query_date[2], baby_id=data['bid']).order_by('-updatedat')
                     for record in baby_records:
                         tmpdict = {}
                         tmpdict['rid'] = record.id
@@ -228,7 +228,7 @@ def get_baby_record_detail(request):
                     baby_records = \
                         baby_diaper.objects.filter(createdat__year=query_date[0], \
                                                    createdat__month=query_date[1], \
-                                                   createdat__day=query_date[2], baby_id=data['bid'])
+                                                   createdat__day=query_date[2], baby_id=data['bid']).order_by('-updatedat')
                     for record in baby_records:
                         tmpdict = {}
                         tmpdict['rid'] = record.id
@@ -346,7 +346,7 @@ def c_baby_picture(request):
     if request.method == 'POST':
         try:
             bid = request.POST['bpid']
-            resizedImage = resize_uploaded_image(request.FILES['uploaded_file'])
+            resizedImage = request.FILES['uploaded_file']
             content = File(resizedImage)
             #file_content = ContentFile(request.FILES['uploaded_file'].read())
             baby_pic = baby_picture.objects.create(baby_id=bid)
@@ -412,7 +412,7 @@ def updata_baby_pic(request):
         try:
             bid = request.POST['bid']
             # file_content = ContentFile(request.FILES['uploaded_file'].read())
-            resizedImage = resize_uploaded_image(request.FILES['uploaded_file'])
+            resizedImage = request.FILES['uploaded_file']
             content = File(resizedImage)
             b_data = baby.objects.get(id=bid)
             b_data.img.save(bid+request.FILES['uploaded_file'].name, content)
